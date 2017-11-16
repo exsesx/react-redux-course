@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import socket from 'utils/socket';
 
 export default class TestComponent extends Component {
 

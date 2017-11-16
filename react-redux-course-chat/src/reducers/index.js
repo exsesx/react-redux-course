@@ -1,7 +1,12 @@
-const initState = ["test", "test1", "test2"];
+import { combineReducers } from 'redux';
+import messagesReducer from 'reducers/messagesReducer';
+import peopleReducer from 'reducers/peopleReducer';
+import userState from 'reducers/userStateReducer';
 
-const testReducer = (state = initState /*action*/) => {
-    return state;
-};
+const chatReducer = combineReducers({
+    userState,
+    peopleReducer,
+    messagesReducer
+});
 
-export default testReducer;
+export default chatReducer;

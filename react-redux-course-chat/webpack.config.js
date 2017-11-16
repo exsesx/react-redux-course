@@ -56,7 +56,8 @@ const webpackConfig = {
             'store': path.resolve(__dirname, './src/store'),
             'assets': path.resolve(__dirname, './src/assets'),
             'utils': path.resolve(__dirname, './src/utils'),
-            'styles': path.resolve(__dirname, './src/assets/styles')
+            'styles': path.resolve(__dirname, './src/assets/styles'),
+            'routes': path.resolve(__dirname, './src/routes')
         }
     },
     plugins: [
