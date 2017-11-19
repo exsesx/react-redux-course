@@ -1,8 +1,8 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const outputPath = path.resolve(__dirname, 'dist');
-const publicPath = path.resolve(__dirname, '/src/assets/');
+const outputPath = path.resolve(__dirname, './dist/');
+const publicPath = path.resolve(__dirname, './src/assets/');
 
 const webpackConfig = {
     entry: {

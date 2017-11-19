@@ -1,14 +1,31 @@
 const server = require("./server");
 
 const io = require('socket.io')(server);
+const socketioJwt = require('socketio-jwt');
 
-io.on('connection', function (socket) {
-    console.log('user has connected');
+let socketioJwtAuthorize = socketioJwt.authorize({
+    secret: 'lololo',
+    handshake: true
+});
 
-    io.emit('Introduction', "You are connected to the webSocket");
+io.use(function (socket, next) {
+    socketioJwtAuthorize(socket.request, function (error, success) {
+        if (success) {
+            socket.payload = socket.request.decoded_token;
+            console.log("Success authorization");
+            console.log(socket.request.decoded_token);
+            next();
+        } else {
+            console.log("Unauthorized");
+            next(new Error("unauthorized"));
+        }
+    })
+});
 
-    socket.on('disconnect', data => {
-        console.log('user disconnected');
+io.sockets.on('connection', function (socket) {
+    socket.emit('Introduction', {payload: socket.payload});
+    socket.on('users:get', function () {
+        socket.emit('users:got', {users: ["qwerty", "qwerty2"]})
     })
 });
 

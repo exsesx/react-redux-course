@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Chat from 'containers/Chat';
 import AuthenticationPage from 'containers/Authentication';
-import 'utils/socket';
 
 class Main extends Component {
     render() {
