@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import Header from 'containers/Header';
 import Chat from 'containers/Chat';
 import AuthenticationPage from 'containers/Authentication';
 
@@ -7,7 +8,7 @@ class Main extends Component {
     render() {
         return (
             <div>
-                <div>Header</div>
+                <Header />
                 {this.props.userState.signedIn ? <Chat/> : <AuthenticationPage/>}
             </div>
         )

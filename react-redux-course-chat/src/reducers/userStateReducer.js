@@ -1,8 +1,13 @@
-const defaultUserState = {
-    signedIn: false
-};
-
-const userState = (state = defaultUserState /*action*/) => {
+const userState = (state = {}, action) => {
+    if(action.type === "USER_LOGGED_IN") {
+        return state = {
+            signedIn: true,
+            username: action.username
+        };
+    }
+    if(action.type === "USER_LOGOUT") {
+        return state = {};
+    }
     return state;
 };
 

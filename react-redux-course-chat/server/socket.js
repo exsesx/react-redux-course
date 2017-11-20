@@ -23,7 +23,10 @@ io.use(function (socket, next) {
 });
 
 io.sockets.on('connection', function (socket) {
-    socket.emit('Introduction', {payload: socket.payload});
+    socket.emit('Introduction', socket.payload);
+    socket.on('getUser', function(socket) {
+        socket.emit('gotUser', socket.payload);
+    });
     socket.on('users:get', function () {
         socket.emit('users:got', {users: ["qwerty", "qwerty2"]})
     })
