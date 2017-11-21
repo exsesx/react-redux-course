@@ -38,31 +38,42 @@ app.use(webpackDevMiddleware(compiler, {
 
 app.use(webpackHotMiddleware(compiler));
 
-app.get('*', function (req, res, next) {
+app.get('*', function (req, res) {
     res.sendFile(path.resolve(__dirname, '../dist/index.html'));
 });
 
-app.post('/login', function (req, res, next) {
+app.post('/login', function (req, res) {
     let body = req.body;
 
     let token = jwt.sign(body, "lololo", { expiresIn: '1h' });
-    res.json({ token });
+
+    User.findOne({ username: body.username }, function (err, user) {
+        if (err) throw new Error(err);
+
+        if (user) {
+            res.json({ token });
+        } else {
+            res.status(400).send("User does not exist");
+            console.log("User does not exist");
+        }
+    });
 });
 
-app.post('/register', function (req, res, next) {
-    let {username, password} = req.body;
+app.post('/register', function (req, res) {
+    let { username, password } = req.body;
 
     let newUser = new User({
         username,
         password
     });
 
-    newUser.save(function(err) {
-        if (err) res.status(200).send(err);
-
-        console.log("User", newUser.username, "registered");
-        res.send("successfully registered");
-    });
+    newUser.save().then(res => {
+        console.log(res);
+        res.send('Successfully registered!');
+    }, err => {
+        res.status(400).send("User is already exists");
+        console.log(err);
+    })
 });
 
 function startServer() {

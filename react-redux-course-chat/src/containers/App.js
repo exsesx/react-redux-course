@@ -1,25 +1,33 @@
 import React, { Component } from 'react';
-import { Provider } from 'react-redux'
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { BrowserRouter } from 'react-router-dom';
-import Main from 'containers/Main';
-import store from 'store/index';
-import 'styles/styles.scss'
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import Header from 'components/Header';
+import Routes from 'routes/index';
 
-window.store = store;
+import 'styles/styles.scss';
 
-export default class App extends Component {
+class App extends Component {
     render() {
+        const signedIn = this.props.userState.signedIn;
         return (
-            <Provider key={module.hot ? Date.now() : store} store={store}>
-                <MuiThemeProvider>
-                    <BrowserRouter>
-                        <Main/>
-                    </BrowserRouter>
-                </MuiThemeProvider>
-            </Provider>
+            <div>
+                <Header signedIn={signedIn}/>
+                <Routes signedIn={signedIn}/>
+            </div>
         )
     }
 }
 
-// redux -> material -> router
+const mapStateToProps = (state) => {
+    return {
+        userState: state.userState
+    }
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatch
+    }
+};
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));

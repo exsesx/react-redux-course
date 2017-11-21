@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
-import App from 'containers/App';
+import Root from 'containers/Root';
 
 import { AppContainer } from 'react-hot-loader';
 
@@ -13,11 +13,11 @@ const renderApp = Component => {
     )
 };
 
-renderApp(App);
+renderApp(Root);
 
 // Webpack Hot Module Replacement API
 if (module.hot) {
     module.hot.accept('containers/App', () => {
-        renderApp(App)
+        renderApp(Root)
     })
 }

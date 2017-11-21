@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 
 let state = {
     db: null,
@@ -37,3 +38,10 @@ function initMongooseEvents(db) {
         console.log("Connected to MongoDB");
     });
 }
+
+process.on("SIGINT", () => {
+    mongoose.connection.close(() => {
+        console.log("App is closing, ending mongoose connection");
+        process.exit(0);
+    });
+});

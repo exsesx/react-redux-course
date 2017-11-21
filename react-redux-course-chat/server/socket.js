@@ -17,7 +17,7 @@ io.use(function (socket, next) {
             next();
         } else {
             console.log("Unauthorized");
-            next(new Error("unauthorized"));
+            next(error);
         }
     })
 });
