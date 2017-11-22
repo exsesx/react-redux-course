@@ -9,6 +9,7 @@ const User = require("./db/model/User");
 let mongoURL = "mongodb://127.0.0.1/chatApplication";
 
 const jwt = require('jsonwebtoken');
+const jwtSecret = "mySecretKey";
 const config = require('../webpack.config.js');
 
 const port = 3000;
@@ -43,19 +44,27 @@ app.get('*', function (req, res) {
 });
 
 app.post('/login', function (req, res) {
-    let body = req.body;
+    let token = jwt.sign(req.body, jwtSecret, { expiresIn: '1h' }),
+        { username, password } = req.body;
 
-    let token = jwt.sign(body, "lololo", { expiresIn: '1h' });
+    if (!username) return res.status(400).send("Username is required");
+    if (!password) return res.status(400).send("Password is required");
 
-    User.findOne({ username: body.username }, function (err, user) {
-        if (err) throw new Error(err);
+    User.getUserByUsername(username, function (err, user) {
+        if (err) return res.status(400).send(err);
 
-        if (user) {
-            res.json({ token });
-        } else {
-            res.status(400).send("User does not exist");
-            console.log("User does not exist");
+        if (!user) {
+            return res.status(400).send("Unknown user");
         }
+
+        User.comparePassword(password, user.password, function (err, isMatch) {
+            if (err) return res.status(400).send(err);
+            if (isMatch) {
+                return res.json({ token });
+            } else {
+                return res.status(400).send("Invalid password")
+            }
+        })
     });
 });
 
@@ -67,13 +76,12 @@ app.post('/register', function (req, res) {
         password
     });
 
-    newUser.save().then(response => {
-        console.log(response);
-        res.status(200).send('Successfully registered!');
-    }, err => {
-        res.status(400).send("User is already exists");
-        console.log(err);
-    })
+    User.createUser(newUser, function (error, user) {
+        console.log(user);
+        error
+            ? res.status(400).send('User is already exists')
+            : res.status(200).send('Successfuly registered')
+    });
 });
 
 function startServer() {

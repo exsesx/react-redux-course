@@ -15,6 +15,7 @@ function PrivateRoute({ component: Component, authed, ...rest }) {
     )
 }
 
+// TODO: implement secure routes normal way
 export default class Routes extends Component {
     render() {
         return (

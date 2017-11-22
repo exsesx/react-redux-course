@@ -4,7 +4,7 @@ const io = require('socket.io')(server);
 const socketioJwt = require('socketio-jwt');
 
 let socketioJwtAuthorize = socketioJwt.authorize({
-    secret: 'lololo',
+    secret: "mySecretKey",
     handshake: true
 });
 
