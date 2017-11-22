@@ -1,0 +1,16 @@
+.chat-container {
+  max-width: 1010px;
+  margin: 0 auto;
+
+  .dialogs-wrapper {
+    width: 31%;
+
+    .dialogs-search {
+      padding: 12px;
+    }
+
+    .dialogs-list {
+      padding: 0 !important;
+    }
+  }
+}

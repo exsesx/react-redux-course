@@ -4,7 +4,9 @@ import FlatButton from 'material-ui/FlatButton';
 import Drawer from 'material-ui/Drawer';
 import IconButton from 'material-ui/IconButton';
 import MobileMenu from 'material-ui/svg-icons/navigation/menu';
+import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
+import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import store from 'store/index';
 import { Link } from 'react-router-dom';
 import { userLogout } from "actions/index";
@@ -16,8 +18,16 @@ export class Menu extends Component {
         if (this.props.signedIn) {
             return (
                 <div className="header-menu">
-                    <FlatButton label="Home" containerElement={<Link to="/"/>}/>
-                    <FlatButton label="Logout" onClick={() => dispatch(userLogout())}/>
+                    <IconMenu
+                        iconButtonElement={
+                            <IconButton><MoreVertIcon color={"white"}/></IconButton>
+                        }
+                        targetOrigin={{ horizontal: 'right', vertical: 'top' }}
+                        anchorOrigin={{ horizontal: 'right', vertical: 'top' }}>
+                        <MenuItem primaryText="Refresh"/>
+                        <MenuItem primaryText="Help"/>
+                        <MenuItem primaryText="Sign out" onClick={() => dispatch(userLogout())}/>
+                    </IconMenu>
                 </div>
             )
         }
@@ -45,7 +55,7 @@ export default class Header extends Component {
     render() {
         return (
             <AppBar
-                title="Title"
+                title="Chat"
                 iconElementLeft={
                     <IconButton onClick={this.handleToggle}><MobileMenu/></IconButton>
                 }>

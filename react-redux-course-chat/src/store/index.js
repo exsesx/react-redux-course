@@ -1,8 +1,8 @@
 import {createStore} from 'redux';
-import testReducer from 'reducers/index';
+import chatReducer from 'reducers/index';
 
 const store = createStore(
-    testReducer,
+    chatReducer,
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 );
 

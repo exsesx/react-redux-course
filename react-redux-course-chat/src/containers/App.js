@@ -10,10 +10,7 @@ class App extends Component {
     render() {
         const signedIn = this.props.userState.signedIn;
         return (
-            <div>
-                <Header signedIn={signedIn}/>
-                <Routes signedIn={signedIn}/>
-            </div>
+            <Routes signedIn={signedIn}/>
         )
     }
 }
@@ -24,10 +21,4 @@ const mapStateToProps = (state) => {
     }
 };
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-};
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
+export default withRouter(connect(mapStateToProps)(App));

@@ -22,7 +22,7 @@ export default class Routes extends Component {
             <Switch>
                 <Route exact path="/login" render={() => <Authentication signedIn={this.props.signedIn}/>}/>
                 <Route exact path="/register" render={() => <Registration signedIn={this.props.signedIn}/>}/>
-                <PrivateRoute authed={this.props.signedIn} path="/" component={Chat}/>
+                <Route exact path="/" render={() => <Chat signedIn={this.props.signedIn}/>}/>
             </Switch>
         )
     }

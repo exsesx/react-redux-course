@@ -19,7 +19,7 @@ export default class Registration extends Component {
     }
 
     render() {
-        if (this.props.signedIn === true) {
+        if (this.props.signedIn) {
             return <Redirect to="/"/>
         }
         return (

@@ -4,7 +4,7 @@ import AuthenticationForm from 'components/AuthenticationForm';
 
 export default class Authentication extends Component {
     render() {
-        if (this.props.signedIn === true) {
+        if (this.props.signedIn) {
             return <Redirect to="/"/>
         }
         return (
