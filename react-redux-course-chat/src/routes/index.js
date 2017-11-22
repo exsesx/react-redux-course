@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom'
-import Chat from 'components/Chat';
+import Chat from 'containers/Chat';
 import Authentication from 'containers/Authentication';
 import Registration from 'containers/Registration';
 

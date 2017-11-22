@@ -67,9 +67,9 @@ app.post('/register', function (req, res) {
         password
     });
 
-    newUser.save().then(res => {
-        console.log(res);
-        res.send('Successfully registered!');
+    newUser.save().then(response => {
+        console.log(response);
+        res.status(200).send('Successfully registered!');
     }, err => {
         res.status(400).send("User is already exists");
         console.log(err);

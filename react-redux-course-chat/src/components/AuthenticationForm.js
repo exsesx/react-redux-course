@@ -9,7 +9,7 @@ import TextField from 'material-ui/TextField';
 class ErrorContainer extends Component {
     render() {
         return (
-            <div className="error">
+            <div className="message error">
                 {this.props.errorMessage}
             </div>
         )

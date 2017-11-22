@@ -8,11 +8,20 @@ body {
   content: "\e625";
 }
 
-.error {
+.message {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+
+.error {
+  @extend .message;
   color: #F44336;
+}
+
+.success {
+  @extend .message;
+  color: #4CAF50;
 }
 
 .header-menu {

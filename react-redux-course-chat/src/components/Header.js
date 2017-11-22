@@ -23,7 +23,6 @@ export class Menu extends Component {
                 <FlatButton label="Home" containerElement={<Link to="/"/>}/>
                 <FlatButton label="Login" containerElement={<Link to="/login"/>}/>
                 <FlatButton label="Register" containerElement={<Link to="/register"/>}/>
-                <FlatButton label="Logout" onClick={() => dispatch(userLogout())}/>
             </div>
         )
     }

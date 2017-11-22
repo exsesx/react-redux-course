@@ -10,8 +10,18 @@ import Divider from 'material-ui/Divider';
 class ErrorContainer extends Component {
     render() {
         return (
-            <div className="error">
+            <div className="message error">
                 {this.props.errorMessage}
+            </div>
+        )
+    }
+}
+
+class SuccessContainer extends Component {
+    render() {
+        return (
+            <div className="message success">
+                {this.props.successMessage}
             </div>
         )
     }
@@ -51,9 +61,9 @@ export default class AuthenticationForm extends Component {
         axios.post('/register', user)
             .then((response) => {
                 console.log(response.data);
+                this.setState({success: response.data})
             }, err => {
-
-                this.setState({ error: err.response.data })
+                this.setState({error: err.response.data})
             })
     };
 
@@ -73,6 +83,7 @@ export default class AuthenticationForm extends Component {
                         onChange={this.handlePasswordChange}/>
                     <RaisedButton type="submit" label="Register" primary={true}/>
                     {this.state.error ? <ErrorContainer errorMessage={this.state.error}/> : ''}
+                    {this.state.success ? <SuccessContainer successMessage={this.state.success}/> : ''}
                 </form>
             </Paper>
         )
