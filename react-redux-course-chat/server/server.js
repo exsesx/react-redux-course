@@ -5,8 +5,11 @@ const http = require('http');
 const bodyParser = require('body-parser');
 
 const db = require("./db");
-const User = require("./db/model/User");
 let mongoURL = "mongodb://127.0.0.1/chatApplication";
+
+const User = require("./db/model/User");
+const Message = require("./db/model/Message");
+const Conversation = require("./db/model/Conversation");
 
 const jwt = require('jsonwebtoken');
 const jwtSecret = "mySecretKey";

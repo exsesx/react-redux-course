@@ -1,39 +1,31 @@
 import io from 'socket.io-client';
 import store from 'store';
-import { userLoggedIn } from 'actions';
+import { userLoggedIn, userLogout } from 'actions';
 
 const { dispatch } = store;
 
 const socketUrl = "http://localhost:3000";
 export const connect = () => {
-    const socket = io.connect(socketUrl, {
-        query: 'token=' + localStorage.getItem('chatToken')
-    });
-
-    socket.on('error', function (error) {
-        console.log(error);
-        if (error === 'unauthorized') {
-            console.log('Go to login');
-        }
-    });
+    const socket = io.connect(socketUrl);
 
     socket.on('connect', function () {
-        console.warn('You are connected to WebSocket');
-    });
+        socket
+            .emit('authenticate', { token: localStorage.getItem('chatToken') }) //send the jwt
+            .on('authenticated', function () {
+                console.warn("User successfully authenticated");
 
-    socket.on('users:got', function (data) {
-        console.log('Users', data);
-    });
-
-    socket.on('gotUser', function (data) {
-        console.log('You are:', data);
-    });
-
-    socket.on('Introduction', function (user) {
-        console.log(user);
-        if(user) {
-            dispatch(userLoggedIn(user));
-        }
+                socket.on('Introduction', function (user) {
+                    console.log(user);
+                    if (user) {
+                        dispatch(userLoggedIn(user));
+                    }
+                })
+            })
+            .on('unauthorized', function (error) {
+                console.error("Unauthorized: " + error.data.message);
+                dispatch(userLogout());
+                return error.data;
+            })
     });
 
     const emit = (message) => {

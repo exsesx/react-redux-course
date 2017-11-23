@@ -3,33 +3,16 @@ const server = require("./server");
 const io = require('socket.io')(server);
 const socketioJwt = require('socketio-jwt');
 
-let socketioJwtAuthorize = socketioJwt.authorize({
-    secret: "mySecretKey",
-    handshake: true
-});
+io.sockets.on('connection', socketioJwt.authorize({
+    secret: 'mySecretKey',
+    callback: 15000
+})).on('authenticated', function (socket) {
+    socket.emit('Introduction', socket.decoded_token);
+    console.log('User ' + socket.decoded_token.username + ' has connected to the chat.');
 
-io.use(function (socket, next) {
-    socketioJwtAuthorize(socket.request, function (error, success) {
-        if (success) {
-            socket.payload = socket.request.decoded_token;
-            console.log("Success authorization");
-            console.log(socket.request.decoded_token);
-            next();
-        } else {
-            console.log("Unauthorized");
-            next(error);
-        }
-    })
-});
-
-io.sockets.on('connection', function (socket) {
-    socket.emit('Introduction', socket.payload);
-    socket.on('getUser', function(socket) {
-        socket.emit('gotUser', socket.payload);
+    socket.on('disconnect', function () {
+        console.log('User ' + socket.decoded_token.username + ' has left the chat.');
     });
-    socket.on('users:get', function () {
-        socket.emit('users:got', {users: ["qwerty", "qwerty2"]})
-    })
 });
 
 module.exports = io;
