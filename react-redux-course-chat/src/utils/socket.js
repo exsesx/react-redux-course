@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 import store from 'store';
-import { userLoggedIn, userLogout } from 'actions';
+import { userLoggedIn, userLogout, initUsers } from 'actions';
 
 const { dispatch } = store;
 
@@ -18,6 +18,14 @@ export const connect = () => {
                     console.log(user);
                     if (user) {
                         dispatch(userLoggedIn(user));
+                    }
+                });
+
+                socket.emit('users:get:not-current');
+                socket.on('users:got:not-current', function(users) {
+                    // todo: what if an error occurs ?
+                    if(users) {
+                        dispatch(initUsers(users));
                     }
                 })
             })

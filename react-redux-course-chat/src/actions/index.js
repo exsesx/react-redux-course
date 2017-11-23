@@ -12,3 +12,10 @@ export const userLogout = () => {
         type: 'USER_LOGOUT'
     }
 };
+
+export const initUsers = (users) => {
+    return {
+        type: "INIT_USERS",
+        users
+    }
+};

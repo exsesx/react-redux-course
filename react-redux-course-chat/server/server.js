@@ -47,8 +47,7 @@ app.get('*', function (req, res) {
 });
 
 app.post('/login', function (req, res) {
-    let token = jwt.sign(req.body, jwtSecret, { expiresIn: '1h' }),
-        { username, password } = req.body;
+    let { username, password } = req.body;
 
     if (!username) return res.status(400).send("Username is required");
     if (!password) return res.status(400).send("Password is required");
@@ -63,6 +62,8 @@ app.post('/login', function (req, res) {
         User.comparePassword(password, user.password, function (err, isMatch) {
             if (err) return res.status(400).send(err);
             if (isMatch) {
+                console.log(user);
+                let token = jwt.sign(user, jwtSecret, { expiresIn: '1h' });
                 return res.json({ token });
             } else {
                 return res.status(400).send("Invalid password")
@@ -73,6 +74,9 @@ app.post('/login', function (req, res) {
 
 app.post('/register', function (req, res) {
     let { username, password } = req.body;
+
+    if (!username) return res.status(400).send("Username is required");
+    if (!password) return res.status(400).send("Password is required");
 
     let newUser = new User({
         username,

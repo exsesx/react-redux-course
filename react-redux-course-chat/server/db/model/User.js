@@ -21,7 +21,7 @@ module.exports.createUser = function (newUser, callback) {
 };
 
 module.exports.getUserByUsername = function (username, callback) {
-    User.findOne({ username }, callback);
+    User.findOne({ username }, callback).lean();
 };
 
 module.exports.comparePassword = function (candidatePassword, hash, callback) {
@@ -30,4 +30,18 @@ module.exports.comparePassword = function (candidatePassword, hash, callback) {
 
         callback(null, isMatch);
     });
+};
+
+module.exports.getAllUsers = function (callback) {
+    User.find().lean().exec(function (err, users) {
+        if (err) throw err;
+        callback(null, users)
+    });
+};
+
+module.exports.getAllUsersExceptCurrent = function(user, callback) {
+    User.find({_id: {$ne: user._id}}).lean().exec(function (err, users) {
+        if(err) throw err;
+        callback(null, users);
+    })
 };
