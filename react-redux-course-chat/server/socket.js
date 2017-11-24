@@ -29,6 +29,20 @@ io.sockets.on('connection', socketioJwt.authorize({
         });
     });
 
+    socket.on('enter conversation', (conversation) => {
+        socket.join(conversation);
+        // console.log('joined ' + conversation);
+    });
+
+    socket.on('leave conversation', (conversation) => {
+        socket.leave(conversation);
+        // console.log('left ' + conversation);
+    });
+
+    socket.on('new message', (conversation) => {
+        io.sockets.in(conversation).emit('refresh messages', conversation);
+    });
+
     socket.on('disconnect', function () {
         console.log(socket.decoded_token.username + ' has left the chat.');
 

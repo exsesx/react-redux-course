@@ -42,6 +42,25 @@ app.use(webpackDevMiddleware(compiler, {
 
 app.use(webpackHotMiddleware(compiler));
 
+const ChatController = require('./chatController');
+
+const chatRoutes = express.Router();
+
+// Set chat routes as a subgroup/middleware to apiRoutes
+app.use('/chat', chatRoutes);
+
+// View messages to and from authenticated user
+chatRoutes.get('/', ChatController.getConversations);
+
+// Retrieve single conversation
+chatRoutes.get('/:conversationId', ChatController.getConversation);
+
+// Send reply in conversation
+chatRoutes.post('/:conversationId', ChatController.sendReply);
+
+// Start new conversation
+chatRoutes.post('/new/:recipient', ChatController.newConversation);
+
 app.get('*', function (req, res) {
     res.sendFile(path.resolve(__dirname, '../dist/index.html'));
 });
