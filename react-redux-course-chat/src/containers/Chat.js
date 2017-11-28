@@ -1,19 +1,22 @@
 import React, { Component } from 'react';
-import Header from 'components/Header';
+import ChatHeader from 'components/ChatHeader';
 import People from 'containers/People';
-import { Redirect } from 'react-router-dom';
+import Search from 'containers/Search';
+import { Link, Route, Redirect } from 'react-router-dom';
 import Messages from 'containers/Messages';
 
 export default class Chat extends Component {
+    componentDidMount() {
+
+    }
+
     render() {
-        if (!this.props.signedIn) {
-            return <Redirect to="/login"/>
-        }
         return (
             <div className="chat-container">
-                <Header signedIn={this.props.signedIn}/>
+                <ChatHeader/>
                 <People/>
                 {/*<Messages />*/}
+                <Route path={`/search/:searchString`} component={Search}/>
             </div>
         )
     }

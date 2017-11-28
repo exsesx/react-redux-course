@@ -6,6 +6,14 @@ export const userLoggedIn = ({username, password}) => {
     }
 };
 
+export const connectedNewUser = ({_id, username}) => {
+    return {
+        type: "CONNECTED_NEW_USER",
+        _id,
+        username
+    }
+};
+
 export const userLogout = () => {
     localStorage.removeItem('chatToken');
     return {

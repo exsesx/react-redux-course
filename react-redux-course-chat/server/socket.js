@@ -12,6 +12,9 @@ io.sockets.on('connection', socketioJwt.authorize({
     callback: 15000
 })).on('authenticated', function (socket) {
     clients.push(socket);
+
+    socket.broadcast.emit('connectedNewUser', socket.decoded_token);
+
     socket.emit('Introduction', socket.decoded_token);
     console.log(socket.decoded_token.username + ' has connected to the chat.');
 

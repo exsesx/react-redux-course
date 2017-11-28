@@ -60,9 +60,6 @@ exports.newConversation = function (req, res, next) {
         return next();
     }
 
-    console.log(req.body);
-    console.log(req.params);
-
     if (!req.body.composedMessage) {
         res.status(422).send({ error: 'Please enter a message.' });
         return next();

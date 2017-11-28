@@ -81,7 +81,6 @@ app.post('/login', function (req, res) {
         User.comparePassword(password, user.password, function (err, isMatch) {
             if (err) return res.status(400).send(err);
             if (isMatch) {
-                console.log(user);
                 let token = jwt.sign(user, jwtSecret, { expiresIn: '1h' });
                 return res.json({ token });
             } else {
@@ -103,7 +102,6 @@ app.post('/register', function (req, res) {
     });
 
     User.createUser(newUser, function (error, user) {
-        console.log(user);
         error
             ? res.status(400).send('User is already exists')
             : res.status(200).send('Successfuly registered')

@@ -1,20 +1,13 @@
 import React, { Component } from 'react';
+import { Redirect, Link } from 'react-router-dom';
+import MessageContainer from 'components/MessageContainer';
 import axios from 'axios';
-import { connect } from 'utils/socket';
+import { connectToWebSocket } from 'utils/socket';
 
 import Paper from 'material-ui/Paper';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 
-class ErrorContainer extends Component {
-    render() {
-        return (
-            <div className="message error">
-                {this.props.errorMessage}
-            </div>
-        )
-    }
-}
 
 export default class AuthenticationForm extends Component {
     constructor(props) {
@@ -23,7 +16,7 @@ export default class AuthenticationForm extends Component {
         this.state = {
             username: '',
             password: '',
-            error: ''
+            message: ''
         };
     }
 
@@ -50,13 +43,14 @@ export default class AuthenticationForm extends Component {
         axios.post('/login', user)
             .then((response) => {
                 localStorage.setItem("chatToken", response.data.token);
-                connect();
+                connectToWebSocket();
             }, err => {
-                this.setState({ error: err.response.data });
+                this.setState({ message: {data: err.response.data, type: 'error'} });
             })
     };
 
     render() {
+
         return (
             <Paper className="authentication-form" zDepth={2}>
                 <form onSubmit={this.authenticate}>
@@ -71,8 +65,9 @@ export default class AuthenticationForm extends Component {
                         hintText="Password"
                         onChange={this.handlePasswordChange}/>
                     <RaisedButton type="submit" label="Login" primary={true}/>
+                    <Link to="/register" style={{ marginTop: 15 }}>Don't have an account yet?</Link>
                 </form>
-                {this.state.error ? <ErrorContainer errorMessage={this.state.error}/> : ''}
+                {this.state.message ? <MessageContainer message={this.state.message}/> : ''}
             </Paper>
         )
     }

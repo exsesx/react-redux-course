@@ -1,40 +1,20 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import MessageContainer from 'components/MessageContainer';
 import axios from 'axios';
-import { connect } from 'utils/socket';
 
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
-import Divider from 'material-ui/Divider';
 
-class ErrorContainer extends Component {
-    render() {
-        return (
-            <div className="message error">
-                {this.props.errorMessage}
-            </div>
-        )
-    }
-}
-
-class SuccessContainer extends Component {
-    render() {
-        return (
-            <div className="message success">
-                {this.props.successMessage}
-            </div>
-        )
-    }
-}
-
-export default class AuthenticationForm extends Component {
+export default class RegistrationForm extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             username: '',
             password: '',
-            error: ''
+            message: ''
         };
     }
 
@@ -61,9 +41,10 @@ export default class AuthenticationForm extends Component {
         axios.post('/register', user)
             .then((response) => {
                 console.log(response.data);
-                this.setState({success: response.data})
+                this.setState({ message: {data: response.data, type: 'success'} });
             }, err => {
-                this.setState({error: err.response.data})
+            console.log(err);
+                this.setState({ message: {data: err.response.data, type: 'error'} })
             })
     };
 
@@ -82,8 +63,8 @@ export default class AuthenticationForm extends Component {
                         hintText="Password"
                         onChange={this.handlePasswordChange}/>
                     <RaisedButton type="submit" label="Register" primary={true}/>
-                    {this.state.error ? <ErrorContainer errorMessage={this.state.error}/> : ''}
-                    {this.state.success ? <SuccessContainer successMessage={this.state.success}/> : ''}
+                    <Link to="/login" style={{marginTop: 15}}>Sign in</Link>
+                    {this.state.message ? <MessageContainer message={this.state.message}/> : ''}
                 </form>
             </Paper>
         )

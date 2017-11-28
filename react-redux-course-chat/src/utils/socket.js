@@ -1,16 +1,15 @@
 import io from 'socket.io-client';
 import store from 'store';
-import { userLoggedIn, userLogout, initUsers } from 'actions';
+import { userLoggedIn, userLogout, connectedNewUser } from 'actions';
 
 const { dispatch } = store;
 
 const socketUrl = "http://localhost:3000";
-export const connect = () => {
+export const connectToWebSocket = () => {
     const socket = io.connect(socketUrl);
 
     socket.on('connect', function () {
-        socket
-            .emit('authenticate', { token: localStorage.getItem('chatToken') }) //send the jwt
+        socket.emit('authenticate', { token: localStorage.getItem('chatToken') }) //send the jwt
             .on('authenticated', function () {
                 console.warn("User successfully authenticated");
 
@@ -21,11 +20,16 @@ export const connect = () => {
                     }
                 });
 
+                socket.on('connectedNewUser', function (user) {
+                    console.log('Connected new user', user);
+                    dispatch(connectedNewUser(user))
+                });
+
                 socket.emit('users:get:not-current');
-                socket.on('users:got:not-current', function(users) {
+                socket.on('users:got:not-current', function (users) {
                     // todo: what if an error occurs ?
-                    if(users) {
-                        dispatch(initUsers(users));
+                    if (users) {
+                        // dispatch(initUsers(users));
                     }
                 })
             })
@@ -42,5 +46,3 @@ export const connect = () => {
 
     return { emit };
 };
-
-connect();

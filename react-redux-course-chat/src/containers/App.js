@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { connectToWebSocket } from 'utils/socket';
 import { withRouter } from 'react-router-dom';
-import Header from 'components/Header';
 import Routes from 'routes/index';
 
 import 'styles/styles.scss';
 
+connectToWebSocket();
+
 class App extends Component {
     render() {
-        const signedIn = this.props.userState.signedIn;
         return (
-            <Routes signedIn={signedIn}/>
+            <Routes {...this.props} />
         )
     }
 }
