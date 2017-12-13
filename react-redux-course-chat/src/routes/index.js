@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Chat from 'containers/Chat';
+import Messages from 'containers/Messages';
 import LinearProgress from 'material-ui/LinearProgress';
 import Authentication from 'containers/Authentication';
 import Registration from 'containers/Registration';
@@ -39,12 +40,13 @@ export default class Routes extends Component {
 
     // todo: why register uses render??
     render() {
+        const { signedIn } = this.props.userState;
         if (this.state.gotProps) {
             return (
                 <Switch>
-                    <Route path="/register" render={() => <Registration/>}/>
-                    <Route path="/login" component={Authentication}/>
-                    <PrivateRoute isAuthenticated={this.props.userState.signedIn} component={Chat} path="/"/>
+                    <Route path="/register" render={(props) => <Registration {...props}/>}/>
+                    <Route path="/login" render={(props) => <Authentication isAuthenticated={signedIn} {...props}/>}/>
+                    <PrivateRoute isAuthenticated={signedIn} component={Chat} path="/"/>
                     <Route component={notFound}/>
                 </Switch>
             )

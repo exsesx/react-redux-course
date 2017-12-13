@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { connectToWebSocket } from 'utils/socket';
+import Socket from 'utils/socket';
 import { withRouter } from 'react-router-dom';
 import Routes from 'routes/index';
 
 import 'styles/styles.scss';
 
-connectToWebSocket();
+Socket.init();
 
 class App extends Component {
     render() {

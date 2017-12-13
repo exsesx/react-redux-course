@@ -8,8 +8,6 @@ const db = require("./db");
 let mongoURL = "mongodb://127.0.0.1/chatApplication";
 
 const User = require("./db/model/User");
-const Message = require("./db/model/Message");
-const Conversation = require("./db/model/Conversation");
 
 const jwt = require('jsonwebtoken');
 const jwtSecret = "mySecretKey";
@@ -41,25 +39,6 @@ app.use(webpackDevMiddleware(compiler, {
 }));
 
 app.use(webpackHotMiddleware(compiler));
-
-const ChatController = require('./chatController');
-
-const chatRoutes = express.Router();
-
-// Set chat routes as a subgroup/middleware to apiRoutes
-app.use('/chat', chatRoutes);
-
-// View messages to and from authenticated user
-chatRoutes.get('/', ChatController.getConversations);
-
-// Retrieve single conversation
-chatRoutes.get('/:conversationId', ChatController.getConversation);
-
-// Send reply in conversation
-chatRoutes.post('/:conversationId', ChatController.sendReply);
-
-// Start new conversation
-chatRoutes.post('/new/:recipient', ChatController.newConversation);
 
 app.get('*', function (req, res) {
     res.sendFile(path.resolve(__dirname, '../dist/index.html'));

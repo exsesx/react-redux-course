@@ -4,7 +4,7 @@ import RegistrationForm from 'components/RegistrationForm';
 export default class Registration extends Component {
     render() {
         return (
-            <RegistrationForm/>
+            <RegistrationForm {...this.props}/>
         )
     }
 }

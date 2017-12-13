@@ -1,22 +1,28 @@
 import React, { Component } from 'react';
 import ChatHeader from 'components/ChatHeader';
 import People from 'containers/People';
-import Search from 'containers/Search';
-import { Link, Route, Redirect } from 'react-router-dom';
 import Messages from 'containers/Messages';
 
 export default class Chat extends Component {
-    componentDidMount() {
+    constructor(props) {
+        super(props);
 
+        this.state = {
+            selectedRecipient: null
+        }
     }
+
+    selectRecipient = (e, user, color) => {
+        user.avatarColor = color;
+        this.setState({selectedRecipient: user});
+    };
 
     render() {
         return (
             <div className="chat-container">
                 <ChatHeader/>
-                <People/>
-                {/*<Messages />*/}
-                <Route path={`/search/:searchString`} component={Search}/>
+                <People selectRecipient={this.selectRecipient} {...this.props}/>
+                <Messages selectedRecipient={this.state.selectedRecipient} {...this.props}/>
             </div>
         )
     }

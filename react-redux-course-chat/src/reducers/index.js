@@ -1,12 +1,12 @@
 import { combineReducers } from 'redux';
-import messagesReducer from 'reducers/messagesReducer';
+import communicationReducer from 'reducers/communicationReducer';
 import peopleReducer from 'reducers/peopleReducer';
 import userState from 'reducers/userStateReducer';
 
 const chatReducer = combineReducers({
     userState,
     peopleReducer,
-    messagesReducer
+    communicationReducer
 });
 
 export default chatReducer;

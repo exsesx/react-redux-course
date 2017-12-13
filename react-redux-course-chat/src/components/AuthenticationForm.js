@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Redirect, Link } from 'react-router-dom';
 import MessageContainer from 'components/MessageContainer';
 import axios from 'axios';
-import { connectToWebSocket } from 'utils/socket';
+import Socket from 'utils/socket';
 
 import Paper from 'material-ui/Paper';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -43,13 +43,16 @@ export default class AuthenticationForm extends Component {
         axios.post('/login', user)
             .then((response) => {
                 localStorage.setItem("chatToken", response.data.token);
-                connectToWebSocket();
+                Socket.init();
             }, err => {
                 this.setState({ message: {data: err.response.data, type: 'error'} });
             })
     };
 
     render() {
+        if(this.props.isAuthenticated) {
+            return <Redirect to="/"/>
+        }
 
         return (
             <Paper className="authentication-form" zDepth={2}>

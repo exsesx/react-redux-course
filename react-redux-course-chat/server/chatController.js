@@ -1,15 +1,18 @@
-"use strict";
 const Conversation = require('./db/model/Conversation'),
     Message = require('./db/model/Message');
 
-exports.getConversations = function (req, res, next) {
+exports.getConversations = function (user, callback) {
     // Only return one message from each conversation to display as snippet
-    Conversation.find({ participants: { "_id" : "5a1848d167afd44e7a8d96e5", "username" : "test", "password" : "$2a$10$vMhULM3E3u/tD0TAaenJe.fRqIFBfGZ4dV2jDcir.9Hs/95qDzhJu", "__v" : 0 } })
+    Conversation.find({ participants: user._id })
         .select('_id')
         .exec(function (err, conversations) {
             if (err) {
-                res.send({ error: err });
-                return next(err);
+                return callback(err);
+            }
+
+            if(!conversations.length) {
+                let err = {message: "You doesn't have any conversations yet"};
+                return callback(err);
             }
 
             // Set up empty array to hold conversations + most recent message
@@ -24,132 +27,127 @@ exports.getConversations = function (req, res, next) {
                     })
                     .exec(function (err, message) {
                         if (err) {
-                            res.send({ error: err });
-                            return next(err);
+                            return callback(err);
                         }
                         fullConversations.push(message);
                         if (fullConversations.length === conversations.length) {
-                            return res.status(200).json({ conversations: fullConversations });
+                            return callback(null, { conversations: fullConversations });
                         }
                     });
             });
         });
 };
 
-exports.getConversation = function (req, res, next) {
-    Message.find({ conversationId: req.params.conversationId })
+// todo: find participants and return conversations by user
+// Conversation.find().exec((err, conversations) => {
+//     let userConversations = [];
+//     conversations.forEach(c => {
+//         if(c.participants[0] == conversationId)
+//             return c;
+//     });
+// })
+
+exports.getConversation = function (conversationId, callback) {
+    Message.find({ conversationId: conversationId })
         .select('createdAt body author')
         .sort('-createdAt')
         .populate({
             path: 'author',
-            select: 'profile.firstName profile.lastName'
+            select: 'username'
         })
         .exec(function (err, messages) {
             if (err) {
-                res.send({ error: err });
-                return next(err);
+                return callback(err);
             }
 
-            res.status(200).json({ conversation: messages });
+            return callback(null, { conversation: messages });
         });
 };
 
-exports.newConversation = function (req, res, next) {
-    if (!req.params.recipient) {
-        res.status(422).send({ error: 'Please choose a valid recipient for your message.' });
-        return next();
+exports.newConversation = function (currentUser, recipient, composedMessage, callback) {
+    if (!recipient) {
+        return callback({ error: 'Please choose a valid recipient for your message.' });
     }
 
-    if (!req.body.composedMessage) {
-        res.status(422).send({ error: 'Please enter a message.' });
-        return next();
+    if (!composedMessage) {
+        return callback({ error: 'Please enter a message.' });
     }
 
     const conversation = new Conversation({
-        participants: ["5a1848d167afd44e7a8d96e5", req.params.recipient]
+        participants: [currentUser._id, recipient]
     });
 
     conversation.save(function (err, newConversation) {
         if (err) {
-            res.send({ error: err });
-            return next(err);
+            return callback(err);
         }
 
         const message = new Message({
             conversationId: newConversation._id,
-            body: req.body.composedMessage,
-            author: "5a1848d167afd44e7a8d96e5"
+            body: composedMessage,
+            author: currentUser
         });
 
         message.save(function (err, newMessage) {
             if (err) {
-                res.send({ error: err });
-                return next(err);
+                return callback(err);
             }
 
-            res.status(200).json({ message: 'Conversation started!', conversationId: conversation._id });
-            return next();
+            return callback(null, { message: 'Conversation started!', conversationId: conversation._id });
         });
     });
 };
 
-exports.sendReply = function (req, res, next) {
+exports.sendReply = function (conversationId, composedMessage, user, callback) {
     const reply = new Message({
-        conversationId: req.params.conversationId,
-        body: req.body.composedMessage,
-        author: "5a1848d167afd44e7a8d96e5"
+        conversationId: conversationId,
+        body: composedMessage,
+        author: user._id
     });
 
     reply.save(function (err, sentReply) {
         if (err) {
-            res.send({ error: err });
-            return next(err);
+            callback(err);
         }
 
-        res.status(200).json({ message: 'Reply successfully sent!' });
-        return (next);
+        callback(null, { message: 'Reply successfully sent!' });
     });
 };
 
 // DELETE Route to Delete Conversation
-exports.deleteConversation = function (req, res, next) {
+exports.deleteConversation = function (conversationId, user, callback) {
     Conversation.findOneAndRemove({
         $and: [
-            { '_id': req.params.conversationId }, { 'participants': req.user._id }
+            { '_id': conversationId }, { 'participants': user._id }
         ]
     }, function (err) {
         if (err) {
-            res.send({ error: err });
-            return next(err);
+            callback(err);
         }
 
-        res.status(200).json({ message: 'Conversation removed!' });
-        return next();
+        callback(null, { message: 'Conversation removed!' });
     });
 };
 
 // PUT Route to Update Message
-exports.updateMessage = function (req, res, next) {
+exports.updateMessage = function (messageId, newMessage, user, callback) {
     Conversation.find({
         $and: [
-            { '_id': req.params.messageId }, { 'author': req.user._id }
+            { '_id': messageId }, { 'author': user._id }
         ]
     }, function (err, message) {
         if (err) {
-            res.send({ error: err });
-            return next(err);
+            callback(err);
         }
 
-        message.body = req.body.composedMessage;
+        message.body = newMessage;
 
         message.save(function (err, updatedMessage) {
             if (err) {
-                res.send({ error: err });
-                return next(err);
+                callback(err);
             }
 
-            res.status(200).json({ message: 'Message updated!' });
-            return next();
+            callback(null, { message: 'Message updated!' });
         });
     });
 };

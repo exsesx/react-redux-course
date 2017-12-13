@@ -2,8 +2,12 @@ import React, { Component } from 'react';
 import { connect } from "react-redux";
 import Avatar from 'material-ui/Avatar';
 import PeopleSearch from 'components/PeopleSearch';
+import { Tabs, Tab } from 'material-ui/Tabs';
 import List from 'material-ui/List/List';
 import ListItem from 'material-ui/List/ListItem';
+import Socket from 'utils/socket';
+
+import { startConversation } from "actions";
 
 import {
     red500 as red,
@@ -28,17 +32,30 @@ function getRandomColor(colors) {
 }
 
 class People extends Component {
+    componentDidMount() {
+        Socket.emit('users:get:not-current');
+        Socket.emit("conversations:get");
+    }
+
     render() {
         return (
             <div className="dialogs-wrapper">
-                <PeopleSearch dialogs={this.props.people}/>
+                <Tabs>
+                    <Tab label="My Contacts">
+                        <PeopleSearch dialogs={this.props.people} hint="Local"/>
+                    </Tab>
+                    <Tab label="Add Contacts">
+                        <PeopleSearch dialogs={this.props.people} hint="Global"/>
+                    </Tab>
+                </Tabs>
                 <List className="dialogs-list">
-                    {this.props.people.map(u => {
+                    {this.props.people.map((u, index) => {
                         return <ListItem
                             key={u._id}
                             disabled={false}
                             leftAvatar={<Avatar
-                                backgroundColor={getRandomColor(colors)}>{u.username[0]}</Avatar>}>
+                                backgroundColor={colors[index]}>{u.username[0]}</Avatar>}
+                            onClick={e => this.props.selectRecipient(e, u, colors[index])}>
                             {u.username}
                         </ListItem>
                     })}
