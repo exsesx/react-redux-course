@@ -1,10 +1,19 @@
 import io from 'socket.io-client';
 import store from 'store';
-import { userLoggedIn, userLogout, connectedNewUser, initUsers, getConversations } from 'actions';
+import {
+    userLoggedIn,
+    userLogout,
+    connectedNewUser,
+    initUsers,
+    getConversations,
+    setActiveConversation,
+    setMessages,
+    receiveMessage
+} from 'actions';
 
 const { dispatch } = store;
 
-const socketUrl = "http://localhost:3000";
+const socketUrl = "http://192.168.0.101:3000";
 export default class Socket {
     constructor() {
         this.socket = null;
@@ -44,28 +53,49 @@ export default class Socket {
                         }
                     });
 
-                    socket.on('user:got', function(user) {
-                        if(user) {
-                            console.log(user);
+                    socket.on('user:got', function (user) {
+                        console.log(user);
+                    });
+
+                    socket.on('user:conversation-with:got', function (err, conversation) {
+                        if (err) {
+                            console.error(err.message);
+                            dispatch(setActiveConversation(null));
+                            dispatch(setMessages(null));
+                        } else if (conversation) {
+                            dispatch(setActiveConversation(conversation));
+                            socket.emit("messages:get", conversation._id);
+                            socket.emit("conversation:enter", conversation);
                         }
                     });
 
-                    socket.on("conversation:created", function(conversation) {
-                        if(conversation) console.log(conversation);
-                        else console.log("error while creating conversation")
+                    socket.on("conversation:created", function (conversation) {
+                        if (conversation) {
+                            dispatch(setActiveConversation(conversation));
+                            socket.emit("messages:get", conversation._id);
+                        }
                     });
 
                     socket.on("conversations:got", function (conversations) {
                         if (conversations) {
-                            console.log(conversations);
                             dispatch(getConversations(conversations))
                         }
                         else console.log("You have not conversations yet");
-
+                        console.log("CONVERSATIONS:", conversations);
                     });
 
-                    socket.on("conversation:got", function(conversation) {
-                        console.log(conversation);
+                    socket.on("messages:got", function (messages) {
+                        console.log("received messages:", messages);
+                        if (messages) {
+                            dispatch(setMessages(messages));
+                        }
+                    });
+
+                    socket.on("message:receive", message => {
+                        console.log(message);
+                        if (message) {
+                            dispatch(receiveMessage(message))
+                        }
                     });
 
                     socket.on("chatControllerError", function (err) {

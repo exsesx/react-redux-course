@@ -10,7 +10,7 @@ const peopleReducer = (state = [], action) => {
                 return u.id !== action.userID
             });
         case "INIT_USERS":
-            return state.concat([], action.users);
+            return state = action.users;
         default:
             return state
     }

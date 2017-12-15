@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
-import Paper from 'material-ui/Paper';
 import Avatar from 'material-ui/Avatar';
 
 export default class MessagesHeader extends Component {
+    getMessagesCount = (count) => {
+        return "None";
+    };
+
     render() {
-        const { recipient } = this.props;
+        const { recipient, activeConversation, messagesCount } = this.props;
+
+
         return (
             <div className="messages-header">
                 <div className="avatar-wrapper">
@@ -12,7 +17,8 @@ export default class MessagesHeader extends Component {
                 </div>
                 <div className="description">
                     <div className="name">{recipient.username}</div>
-                    <div className="muted info">No messages yet</div>
+                    <div
+                        className="muted info">{activeConversation ? this.getMessagesCount() : 'Conversation is not created yet'}</div>
                 </div>
             </div>
         )

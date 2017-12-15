@@ -66,6 +66,7 @@ export default class AuthenticationForm extends Component {
                         id="text-field-controlled"
                         value={this.state.password}
                         hintText="Password"
+                        type="password"
                         onChange={this.handlePasswordChange}/>
                     <RaisedButton type="submit" label="Login" primary={true}/>
                     <Link to="/register" style={{ marginTop: 15 }}>Don't have an account yet?</Link>

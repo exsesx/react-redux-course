@@ -1,5 +1,6 @@
 const server = require("./server");
 const User = require("./db/model/User");
+const Message = require("./db/model/Message");
 const ChatController = require("./chatController");
 
 const io = require('socket.io')(server);
@@ -22,9 +23,9 @@ io.sockets.on('connection', socketioJwt.authorize({
         });
     });
 
-    socket.on('user:get', function(userName) {
+    socket.on('user:get', function (userName) {
         User.getUserByUsername(userName, (err, user) => {
-            if(err) throw err;
+            if (err) throw err;
             socket.emit('user:got', user);
         })
     });
@@ -38,23 +39,25 @@ io.sockets.on('connection', socketioJwt.authorize({
 
     socket.on('conversations:get', () => {
         ChatController.getConversations(socket.decoded_token, (err, conversations) => {
-            if (err) socket.emit("chatControllerError", err);
-            socket.emit('conversations:got', conversations);
+            if (err) return socket.emit("chatControllerError", err);
+            return socket.emit('conversations:got', conversations);
         });
     });
 
     socket.on('conversation:create', (recipient, message) => {
-        console.log(recipient, message);
         ChatController.newConversation(socket.decoded_token, recipient, message, (err, conversation) => {
-            if (err) socket.emit("chatControllerError", err);
-            socket.emit('conversation:created', conversation);
+            if (err) return socket.emit("chatControllerError", err);
+            return socket.emit('conversation:created', conversation);
         })
     });
 
-    socket.on('conversation:get', (conversationId) => {
-        ChatController.getConversation(conversationId, (err, conversation) => {
+    socket.on('messages:get', (conversationId) => {
+        ChatController.getConversationMessages(conversationId, (err, messages) => {
             if (err) throw err;
-            socket.emit('conversation:got', conversation);
+            socket.emit('messages:got', messages);
+            socket.broadcast.to(conversationId).emit('messages:got', messages);
+            // io.sockets.in(conversationId).emit('messages:got', messages);
+            // socket.to(conversationId).emit('messages:got', messages);
         })
     });
 
@@ -62,6 +65,13 @@ io.sockets.on('connection', socketioJwt.authorize({
         ChatController.deleteConversation(conversationId, socket.decoded_token, (err, conversation) => {
             if (err) throw err;
             socket.emit('conversation:deleted', conversation);
+        })
+    });
+
+    socket.on('user:conversation-with:get', userId => {
+        ChatController.getConversationWithUser(userId, socket.decoded_token, (err, conversations) => {
+            if (err) return socket.emit('user:conversation-with:got', err, null);
+            return socket.emit('user:conversation-with:got', null, conversations);
         })
     });
 
@@ -73,17 +83,28 @@ io.sockets.on('connection', socketioJwt.authorize({
     });
 
     socket.on('conversation:enter', (conversation) => {
-        socket.join(conversation);
-        console.log('joined ' + conversation);
+        socket.join(conversation._id);
+        console.log('joined ' + conversation._id);
     });
 
     socket.on('conversation:leave', (conversation) => {
-        socket.leave(conversation);
-        console.log('left ' + conversation);
+        socket.leave(conversation._id);
+        console.log('left ' + conversation._id);
     });
 
-    socket.on('new message', (conversation) => {
-        io.sockets.in(conversation).emit('refresh messages', conversation);
+    socket.on('message:send', (conversation, composedMessage) => {
+        let message = new Message({
+            conversationId: conversation._id,
+            body: composedMessage,
+            author: socket.decoded_token
+        });
+
+        message.save(function (err, newMessage) {
+            if (err) {
+                return socket.to(conversation._id).emit("chatControllerError", err);
+            }
+            return socket.to(conversation._id).emit("message:receive", newMessage);
+        });
     });
 
     socket.on('disconnect', function () {

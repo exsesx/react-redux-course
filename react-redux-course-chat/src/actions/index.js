@@ -1,14 +1,12 @@
-import {} from 'react-router-dom';
-
-export const userLoggedIn = ({username, password}) => {
+export const userLoggedIn = ({ _id, username }) => {
     return {
         type: 'USER_LOGGED_IN',
         username,
-        password
+        _id
     }
 };
 
-export const connectedNewUser = ({_id, username}) => {
+export const connectedNewUser = ({ _id, username }) => {
     return {
         type: "CONNECTED_NEW_USER",
         _id,
@@ -33,7 +31,7 @@ export const initUsers = (users) => {
 //= ===============================
 // Messaging actions
 //= ===============================
-export const getConversations = ({conversations}) => {
+export const getConversations = ({ conversations }) => {
     return {
         type: "GET_CONVERSATIONS",
         conversations
@@ -45,6 +43,27 @@ export function startConversation({ recipient, message }) {
         type: "START_CONVERSATION",
         recipient,
         message
+    }
+}
+
+export function setActiveConversation(conversation) {
+    return {
+        type: "SET_ACTIVE_CONVERSATION",
+        conversation
+    }
+}
+
+export function receiveMessage(message) {
+    return {
+        type: "RECEIVE_MESSAGE",
+        message
+    }
+}
+
+export function setMessages(messages) {
+    return {
+        type: "SET_MESSAGES",
+        messages
     }
 }
 

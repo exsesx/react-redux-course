@@ -10,8 +10,8 @@ exports.getConversations = function (user, callback) {
                 return callback(err);
             }
 
-            if(!conversations.length) {
-                let err = {message: "You doesn't have any conversations yet"};
+            if (!conversations.length) {
+                let err = { message: "You doesn't have any conversations yet" };
                 return callback(err);
             }
 
@@ -38,39 +38,52 @@ exports.getConversations = function (user, callback) {
         });
 };
 
-// todo: find participants and return conversations by user
-// Conversation.find().exec((err, conversations) => {
-//     let userConversations = [];
-//     conversations.forEach(c => {
-//         if(c.participants[0] == conversationId)
-//             return c;
-//     });
-// })
+exports.getConversationWithUser = function (userId, currentUser, callback) {
+    Conversation.find().exec((err, conversations) => {
+        if (err) {
+            return callback(err);
+        }
+        let userConversation = {};
 
-exports.getConversation = function (conversationId, callback) {
+        conversations.forEach(c => {
+            if (c.participants.indexOf(currentUser._id) !== -1
+                && c.participants.indexOf(userId) !== -1) {
+                userConversation = c;
+            }
+        });
+
+        if (Object.keys(userConversation).length === 0 && userConversation.constructor === Object) {
+            return callback({ message: "Conversations with user " + userId + " is not found" });
+        }
+
+        return callback(null, userConversation);
+    })
+};
+
+exports.getConversationMessages = function (conversationId, callback) {
     Message.find({ conversationId: conversationId })
         .select('createdAt body author')
         .sort('-createdAt')
         .populate({
             path: 'author',
-            select: 'username'
+            select: '_id username'
         })
         .exec(function (err, messages) {
             if (err) {
                 return callback(err);
             }
 
-            return callback(null, { conversation: messages });
+            return callback(null, messages);
         });
 };
 
 exports.newConversation = function (currentUser, recipient, composedMessage, callback) {
     if (!recipient) {
-        return callback({ error: 'Please choose a valid recipient for your message.' });
+        return callback({ message: 'Please choose a valid recipient for your message.' });
     }
 
     if (!composedMessage) {
-        return callback({ error: 'Please enter a message.' });
+        return callback({ message: 'Please enter a message.' });
     }
 
     const conversation = new Conversation({
@@ -93,7 +106,8 @@ exports.newConversation = function (currentUser, recipient, composedMessage, cal
                 return callback(err);
             }
 
-            return callback(null, { message: 'Conversation started!', conversationId: conversation._id });
+            console.log("Conversation started!");
+            return callback(null, conversation);
         });
     });
 };
