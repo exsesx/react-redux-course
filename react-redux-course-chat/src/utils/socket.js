@@ -8,7 +8,8 @@ import {
     getConversations,
     setActiveConversation,
     setMessages,
-    receiveMessage
+    receiveMessage,
+    creatingConversationNotify
 } from 'actions';
 
 const { dispatch } = store;
@@ -76,12 +77,15 @@ export default class Socket {
                         }
                     });
 
+                    socket.on("conversation:creation:notify", function (message) {
+                        dispatch(creatingConversationNotify(message));
+                    });
+
                     socket.on("conversations:got", function (conversations) {
                         if (conversations) {
                             dispatch(getConversations(conversations))
                         }
                         else console.log("You have not conversations yet");
-                        console.log("CONVERSATIONS:", conversations);
                     });
 
                     socket.on("messages:got", function (messages) {

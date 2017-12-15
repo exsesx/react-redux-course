@@ -5,17 +5,21 @@ import Messages from 'containers/Messages';
 import Socket from "utils/socket";
 import { connect } from "react-redux";
 
+import Snackbar from 'material-ui/Snackbar';
+
 class Chat extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            selectedRecipient: null
+            selectedRecipient: null,
+            open: false,
+            message: ""
         }
     }
 
     leaveConversation(conversation) {
-        if(conversation && Object.keys(conversation).length !== 0 && conversation.constructor === Object) {
+        if (conversation && Object.keys(conversation).length !== 0 && conversation.constructor === Object) {
             Socket.emit("conversation:leave", conversation);
         }
     }
@@ -27,12 +31,35 @@ class Chat extends Component {
         this.setState({ selectedRecipient: user });
     };
 
+    componentWillReceiveProps(nextProps) {
+        console.log("NOTIFY", nextProps.notifications);
+        if (nextProps.notifications.message) {
+            this.setState({
+                open: true,
+                message: nextProps.notifications.message
+            })
+        }
+    }
+
+    handleRequestClose = () => {
+        this.setState({
+            open: false,
+        });
+    };
+
     render() {
         return (
             <div className="chat-container">
                 <ChatHeader/>
                 <People selectRecipient={this.selectRecipient} {...this.props}/>
                 <Messages selectedRecipient={this.state.selectedRecipient} {...this.props}/>
+                <Snackbar
+                    open={this.state.open}
+                    message={this.state.message}
+                    action="undo"
+                    autoHideDuration={3000}
+                    onRequestClose={this.handleRequestClose}
+                />
             </div>
         )
     }
@@ -41,7 +68,8 @@ class Chat extends Component {
 const mapStateToProps = (state) => {
     return {
         userState: state.userState,
-        activeConversation: state.communicationReducer.activeConversation
+        activeConversation: state.communicationReducer.activeConversation,
+        notifications: state.notificationReducer
     }
 };
 const mapDispatchToProps = (dispatch) => {

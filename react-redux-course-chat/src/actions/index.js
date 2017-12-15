@@ -21,6 +21,13 @@ export const userLogout = () => {
     }
 };
 
+export const creatingConversationNotify = (message) => {
+    return {
+        type: "CONVERSATION_CREATING",
+        message
+    }
+};
+
 export const initUsers = (users) => {
     return {
         type: "INIT_USERS",

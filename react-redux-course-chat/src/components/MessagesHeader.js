@@ -3,7 +3,10 @@ import Avatar from 'material-ui/Avatar';
 
 export default class MessagesHeader extends Component {
     getMessagesCount = (count) => {
-        return "None";
+        if(count < 1) {
+            return "No messages yet";
+        }
+        return "Messages: " + count;
     };
 
     render() {
@@ -18,7 +21,7 @@ export default class MessagesHeader extends Component {
                 <div className="description">
                     <div className="name">{recipient.username}</div>
                     <div
-                        className="muted info">{activeConversation ? this.getMessagesCount() : 'Conversation is not created yet'}</div>
+                        className="muted info">{activeConversation ? this.getMessagesCount(messagesCount) : 'Conversation is not created yet'}</div>
                 </div>
             </div>
         )

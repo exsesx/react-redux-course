@@ -6,12 +6,29 @@ const ChatController = require("./chatController");
 const io = require('socket.io')(server);
 const socketioJwt = require('socketio-jwt');
 
-let clients = [];
+let clients = [{
+    socket: null,
+    userId: null
+}];
+
+function getSocketIdByUser(userId, clients) {
+    return clients.find((c) => {
+        if (c.userId === userId) {
+            return c;
+        }
+    })
+}
+
 io.sockets.on('connection', socketioJwt.authorize({
     secret: 'mySecretKey',
     callback: 15000
 })).on('authenticated', function (socket) {
-    clients.push(socket);
+    let sock = {
+        userId: socket.decoded_token._id,
+        username: socket.decoded_token.username,
+        socketId: socket.id
+    };
+    clients.push(sock);
 
     socket.emit('Introduction', socket.decoded_token);
     console.log(socket.decoded_token.username + ' has connected to the chat.');
@@ -47,6 +64,11 @@ io.sockets.on('connection', socketioJwt.authorize({
     socket.on('conversation:create', (recipient, message) => {
         ChatController.newConversation(socket.decoded_token, recipient, message, (err, conversation) => {
             if (err) return socket.emit("chatControllerError", err);
+            let onlineUser = getSocketIdByUser(recipient._id, clients);
+            if (onlineUser) {
+                io.to(onlineUser.socketId).emit('conversation:creation:notify', "User " + socket.decoded_token.username + " created conversation with you");
+                io.to(onlineUser.socketId).emit('conversation:created', conversation);
+            }
             return socket.emit('conversation:created', conversation);
         })
     });

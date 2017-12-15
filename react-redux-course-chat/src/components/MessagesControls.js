@@ -21,15 +21,16 @@ export default class MessagesControls extends Component {
 
     handleSend() {
         if (this.props.activeConversation) {
-            this.props.sendMessage(this.props.activeConversation, this.state.message);
+            this.props.sendMessage(this.props.activeConversation, this.state.message.trim());
         } else {
-            this.props.startConversation(this.props.recipient, this.state.message)
+            this.props.startConversation(this.props.recipient, this.state.message.trim())
         }
         this.setState({ message: "" })
     }
 
     handleKeypress(e) {
         if (e.key === 'Enter') {
+            e.preventDefault();
             this.handleSend();
         }
     }

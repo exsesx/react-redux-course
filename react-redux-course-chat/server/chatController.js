@@ -63,7 +63,7 @@ exports.getConversationWithUser = function (userId, currentUser, callback) {
 exports.getConversationMessages = function (conversationId, callback) {
     Message.find({ conversationId: conversationId })
         .select('createdAt body author')
-        .sort('-createdAt')
+        .sort('createdAt')
         .populate({
             path: 'author',
             select: '_id username'

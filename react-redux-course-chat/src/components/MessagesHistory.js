@@ -19,13 +19,15 @@ export default class MessagesHistory extends Component {
                 <div className="messages-history">
                     <div className="history-messages-wrapper">
                         <div ref={messageHistoryWrapper => this.messageHistoryWrapper = messageHistoryWrapper}>
-                            {this.props.messages.reverse().map((m) => {
+                            {this.props.messages.map((m) => {
+                                var date = new Date(m.createdAt).toLocaleTimeString("en-US");
                                 return (
                                     <div key={m._id}
                                          className={"message-wrapper " + (this.checkSender(m) ? 'justify-right' : 'justify-left')}>
                                         <div
-                                            className={"chat-bubble " + (this.checkSender(m) ? 'my-message' : 'recipient-message')}
-                                        >{m.body}</div>
+                                            className={"chat-bubble " + (this.checkSender(m) ? 'my-message' : 'recipient-message')}>
+                                            {m.body}</div>
+                                        <div className="timestamp">{date}</div>
                                     </div>
                                 )
                             })}

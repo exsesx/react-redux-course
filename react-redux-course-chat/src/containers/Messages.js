@@ -20,6 +20,7 @@ class Messages extends Component {
     }
 
     sendMessage(conversation, message) {
+        if(!message) return;
         Socket.emit("message:send", conversation, message);
         Socket.emit("messages:get", conversation);
     }
@@ -29,7 +30,7 @@ class Messages extends Component {
     }
 
     render() {
-        const messagesCount = this.props.communications.messages ? this.props.communications.messages : null;
+        const messagesCount = this.props.communications.messages ? this.props.communications.messages.length : null;
         const { selectedRecipient } = this.props;
         if (selectedRecipient) {
             return (
