@@ -6,6 +6,7 @@ import Socket from "utils/socket";
 import { connect } from "react-redux";
 
 import Snackbar from 'material-ui/Snackbar';
+import { stopNotification } from 'actions';
 
 class Chat extends Component {
     constructor(props) {
@@ -42,6 +43,7 @@ class Chat extends Component {
     }
 
     handleRequestClose = () => {
+        this.props.stopNotification();
         this.setState({
             open: false,
         });
@@ -74,7 +76,7 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch) => {
     return {
-        dispatch
+        stopNotification: () => {dispatch(stopNotification())}
     };
 };
 

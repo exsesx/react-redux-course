@@ -28,6 +28,12 @@ export const creatingConversationNotify = (message) => {
     }
 };
 
+export const stopNotification = () => {
+    return {
+        type: "STOP_NOTIFICATION"
+    }
+};
+
 export const initUsers = (users) => {
     return {
         type: "INIT_USERS",

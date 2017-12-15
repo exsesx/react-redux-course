@@ -14,7 +14,7 @@ import {
 
 const { dispatch } = store;
 
-const socketUrl = "http://192.168.0.101:3000";
+const socketUrl = "http://localhost:3000";
 export default class Socket {
     constructor() {
         this.socket = null;
