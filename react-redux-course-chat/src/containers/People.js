@@ -46,7 +46,7 @@ class People extends Component {
         if (nextProps.conversations) {
             this.setState({ noConversations: false, contactsList: nextProps.conversations });
         } else {
-            this.setState({ noConversations: true })
+            this.setState({ noConversations: true, contactsList: nextProps.conversations })
         }
     }
 

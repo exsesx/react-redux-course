@@ -50,7 +50,7 @@ class Chat extends Component {
 
     removeConversation = (event, conversation) => {
         Socket.emit("conversation:remove", conversation);
-        this.props.getConversations({ conversations: null });
+        this.props.getConversations({ conversations: [] });
         this.props.setActiveConversation(null);
         this.setState({ selectedRecipient: null, selectedConversation: null });
     };
