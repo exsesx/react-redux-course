@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import { connect } from "react-redux";
 import Avatar from 'material-ui/Avatar';
 import PeopleSearch from 'components/PeopleSearch';
+import ContactsSearch from 'components/ContactsSearch';
+import ContactsList from 'components/ContactsList';
 import { Tabs, Tab } from 'material-ui/Tabs';
 import List from 'material-ui/List/List';
 import ListItem from 'material-ui/List/ListItem';
+import CircularProgress from 'material-ui/CircularProgress'
 import Socket from 'utils/socket';
-
-import { startConversation } from "actions";
 
 import {
     red500 as red,
@@ -27,14 +28,45 @@ import {
 
 const colors = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, yellow, amber, orange];
 
-function getRandomColor(colors) {
-    return colors[Math.floor(Math.random() * colors.length)];
-}
-
 class People extends Component {
+    constructor(props) {
+        super(props);
+
+        this.handleContactsSearch = this.handleContactsSearch.bind(this);
+        this.peopleSearchItemSelected = this.peopleSearchItemSelected.bind(this);
+        this.state = {
+            contactsList: []
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({ contactsList: nextProps.conversations });
+    }
+
     componentDidMount() {
         Socket.emit('users:get:not-current');
         Socket.emit("conversations:get");
+
+    }
+
+    peopleSearchItemSelected(chosenRequest, index) {
+        this.props.selectParticipant(null, chosenRequest, colors[index], "user");
+    }
+
+    handleContactsSearch(e) {
+        //todo: make this works
+
+        // let updatedList = this.state.contactsList;
+        //
+        // updatedList.filter( (c) => {
+        //     c.participants.filter((p) => {
+        //         if(p.username !== this.props.userState.username) {
+        //             return c;
+        //         }
+        //     });
+        //     console.log(c)
+        // });
+        // console.log(updatedList)
     }
 
     render() {
@@ -42,24 +74,34 @@ class People extends Component {
             <div className="dialogs-wrapper">
                 <Tabs>
                     <Tab label="My Contacts">
-                        <PeopleSearch dialogs={this.props.people} hint="Local"/>
+                        <ContactsSearch handleContactsSearch={this.handleContactsSearch}/>
+                        {this.state.contactsList.length > 0 ?
+                            (<ContactsList conversations={this.state.contactsList}
+                                           selectParticipant={this.props.selectParticipant}
+                                           createConversation={this.props.createConversation}
+                                           activeUser={this.props.userState}/>) :
+                            <div className="dialogs-loading-wrapper">
+                                <CircularProgress size={60} thickness={7}/>
+                            </div>
+                        }
                     </Tab>
                     <Tab label="Add Contacts">
-                        <PeopleSearch dialogs={this.props.people} hint="Global"/>
+                        <PeopleSearch dialogs={this.props.people} onSelectedItem={this.peopleSearchItemSelected}/>
+
+                        <List className="dialogs-list">
+                            {this.props.people.map((u, index) => {
+                                return <ListItem
+                                    key={u._id}
+                                    disabled={false}
+                                    leftAvatar={<Avatar
+                                        backgroundColor={colors[index]}>{u.username.charAt(0)}</Avatar>}
+                                    onClick={e => this.props.selectParticipant(e, u, colors[index], "user")}>
+                                    {u.username}
+                                </ListItem>
+                            })}
+                        </List>
                     </Tab>
                 </Tabs>
-                <List className="dialogs-list">
-                    {this.props.people.map((u, index) => {
-                        return <ListItem
-                            key={u._id}
-                            disabled={false}
-                            leftAvatar={<Avatar
-                                backgroundColor={colors[index]}>{u.username[0]}</Avatar>}
-                            onClick={e => this.props.selectRecipient(e, u, colors[index])}>
-                            {u.username}
-                        </ListItem>
-                    })}
-                </List>
             </div>
 
         )
@@ -68,7 +110,8 @@ class People extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        people: state.peopleReducer
+        people: state.peopleReducer,
+        conversations: state.communicationReducer.conversations
     }
 };
 const mapDispatchToProps = (dispatch) => {

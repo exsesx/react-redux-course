@@ -4,7 +4,7 @@ const Conversation = require('./db/model/Conversation'),
 exports.getConversations = function (user, callback) {
     // Only return one message from each conversation to display as snippet
     Conversation.find({ participants: user._id })
-        .select('_id')
+        .populate({ path: "participants", select: "_id username" })
         .exec(function (err, conversations) {
             if (err) {
                 return callback(err);
@@ -18,18 +18,20 @@ exports.getConversations = function (user, callback) {
             // Set up empty array to hold conversations + most recent message
             let fullConversations = [];
             conversations.forEach(function (conversation) {
-                Message.find({ 'conversationId': conversation._id })
+                let tempConversation = Object.assign({}, conversation.toJSON());
+                Message.findOne({ 'conversationId': conversation._id })
+                    .select("-conversationId -__v")
                     .sort('-createdAt')
-                    .limit(1)
                     .populate({
                         path: "author",
-                        select: "profile.firstName profile.lastName"
+                        select: "-password"
                     })
                     .exec(function (err, message) {
                         if (err) {
                             return callback(err);
                         }
-                        fullConversations.push(message);
+                        tempConversation.lastMessage = message;
+                        fullConversations.push(tempConversation);
                         if (fullConversations.length === conversations.length) {
                             return callback(null, { conversations: fullConversations });
                         }
@@ -77,7 +79,7 @@ exports.getConversationMessages = function (conversationId, callback) {
         });
 };
 
-exports.newConversation = function (currentUser, recipient, composedMessage, callback) {
+exports.newConversation = function (currentUser, recipient, composedMessage, conversationName = null, callback) {
     if (!recipient) {
         return callback({ message: 'Please choose a valid recipient for your message.' });
     }
@@ -87,6 +89,7 @@ exports.newConversation = function (currentUser, recipient, composedMessage, cal
     }
 
     const conversation = new Conversation({
+        name: conversationName,
         participants: [currentUser._id, recipient]
     });
 

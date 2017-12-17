@@ -14,7 +14,7 @@ import {
 
 const { dispatch } = store;
 
-const socketUrl = "http://localhost:3000";
+const socketUrl = "http://192.168.0.105:3000";
 export default class Socket {
     constructor() {
         this.socket = null;
@@ -35,16 +35,15 @@ export default class Socket {
                 .on('authenticated', function () {
                     console.warn("User successfully authenticated");
 
-                    socket.on('Introduction', function (user) {
-                        console.log(user);
+                    socket.on('user:authenticated', function (user) {
                         if (user) {
                             dispatch(userLoggedIn(user));
+                            socket.emit("conversations:get");
                         }
                     });
 
-                    socket.on('connectedNewUser', function (user) {
+                    socket.on('user:connected', function (user) {
                         console.log('Connected new user', user);
-                        dispatch(connectedNewUser(user))
                     });
 
                     socket.on('users:got:not-current', function (users) {
@@ -74,6 +73,7 @@ export default class Socket {
                         if (conversation) {
                             dispatch(setActiveConversation(conversation));
                             socket.emit("messages:get", conversation._id);
+                            socket.emit("conversations:get");
                         }
                     });
 

@@ -6,14 +6,16 @@ import Socket from "utils/socket";
 import { connect } from "react-redux";
 
 import Snackbar from 'material-ui/Snackbar';
-import { stopNotification } from 'actions';
+import { setActiveConversation, stopNotification } from 'actions';
 
 class Chat extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            selectedConversation: null,
             selectedRecipient: null,
+            createConversation: false,
             open: false,
             message: ""
         }
@@ -25,11 +27,23 @@ class Chat extends Component {
         }
     }
 
-    selectRecipient = (e, user, color) => {
-        user.avatarColor = color;
-        Socket.emit("user:conversation-with:get", user._id);
+    selectParticipant = (e, selected, color, type) => {
+        this.setState({createConversation: false});
+        selected.avatarColor = color;
+        selected.type = type;
+        Socket.emit(type === "user"
+            ? "user:conversation-with:get"
+            : "conversation:get", selected._id);
         this.leaveConversation(this.props.activeConversation);
-        this.setState({ selectedRecipient: user });
+        if (type === "user") {
+            this.setState({selectedRecipient: selected, selectedConversation: null});
+        } else {
+            this.setState({selectedConversation: selected, selectedRecipient: null});
+        }
+    };
+
+    createConversation = (e) => {
+        this.setState({createConversation: true})
     };
 
     componentWillReceiveProps(nextProps) {
@@ -53,8 +67,11 @@ class Chat extends Component {
         return (
             <div className="chat-container">
                 <ChatHeader/>
-                <People selectRecipient={this.selectRecipient} {...this.props}/>
-                <Messages selectedRecipient={this.state.selectedRecipient} {...this.props}/>
+                <People selectParticipant={this.selectParticipant} createConversation={this.createConversation} {...this.props}/>
+                <Messages recipient={this.state.selectedRecipient}
+                          conversation={this.state.selectedConversation}
+                          newConversation={this.state.createConversation}
+                          {...this.props}/>
                 <Snackbar
                     open={this.state.open}
                     message={this.state.message}
@@ -76,7 +93,12 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch) => {
     return {
-        stopNotification: () => {dispatch(stopNotification())}
+        stopNotification: () => {
+            dispatch(stopNotification())
+        },
+        setActiveConversation: (conversation) => {
+            dispatch(setActiveConversation(conversation))
+        }
     };
 };
 

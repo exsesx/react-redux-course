@@ -6,6 +6,13 @@
     width: 31%;
     float: left;
 
+    .dialogs-loading-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: calc(100vh - 172px);
+    }
+
     .dialogs-search {
       padding: 12px;
     }
@@ -24,6 +31,22 @@
     width: 69%;
     flex-direction: column;
     justify-content: space-between;
+
+    .create-new-conversation {
+      padding-top: 60px;
+
+      .conversation-inputs {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 50px;
+      }
+
+      .conversation-submit {
+        display: flex;
+        justify-content: flex-end;
+        padding: 25px 50px 0 0;
+      }
+    }
 
     .messages-header {
       min-height: 100px;

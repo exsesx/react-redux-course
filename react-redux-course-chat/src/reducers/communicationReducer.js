@@ -10,10 +10,8 @@ const communicationReducer = (state = INITIAL_STATE, action) => {
             return { ...state, messages: action.messages };
         case "RECEIVE_MESSAGE":
             return { ...state, messages: state.messages.concat(action.message)};
-        case "FETCH_RECIPIENTS":
+        case "GET_RECIPIENTS":
             return { ...state, recipients: action.payload.recipients };
-        case "START_CONVERSATION":
-            return { ...state, message: action.payload.message };
         case "SEND_REPLY":
             return { ...state, message: action.payload.message };
     }

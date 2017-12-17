@@ -2,25 +2,14 @@ import React, { Component } from 'react';
 import MessagesHeader from 'components/MessagesHeader';
 import MessagesHistory from 'components/MessagesHistory';
 import MessagesControls from 'components/MessagesControls';
+import NewConversation from 'components/NewConversation';
 import { connect } from "react-redux";
 
 import Socket from 'utils/socket';
 
 class Messages extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            activeConversation: null
-        }
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState({ activeConversation: nextProps.communications.activeConversation });
-    }
-
     sendMessage(conversation, message) {
-        if(!message) return;
+        if (!message) return;
         Socket.emit("message:send", conversation, message);
         Socket.emit("messages:get", conversation);
     }
@@ -31,15 +20,29 @@ class Messages extends Component {
 
     render() {
         const messagesCount = this.props.communications.messages ? this.props.communications.messages.length : null;
-        const { selectedRecipient } = this.props;
-        if (selectedRecipient) {
+        const { recipient, conversation } = this.props;
+
+        if (this.props.newConversation) {
             return (
                 <div className="messages-wrapper">
-                    <MessagesHeader recipient={selectedRecipient}
-                                    messagesCount={messagesCount}
-                                    activeConversation={this.state.activeConversation}/>
+
+                        <NewConversation people={this.props.people}/>
+
+                </div>
+            )
+        }
+
+        if (recipient || conversation) {
+            return (
+                <div className="messages-wrapper">
+                    <MessagesHeader
+                        recipient={recipient}
+                        activeUser={this.props.userState}
+                        messagesCount={messagesCount}
+                        activeConversation={this.props.conversation}/>
                     <MessagesHistory activeUser={this.props.userState} messages={this.props.communications.messages}/>
-                    <MessagesControls recipient={selectedRecipient} activeConversation={this.state.activeConversation}
+                    <MessagesControls recipient={recipient}
+                                      activeConversation={this.props.conversation}
                                       sendMessage={this.sendMessage}
                                       startConversation={this.startConversation}/>
                 </div>
@@ -55,7 +58,8 @@ class Messages extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        communications: state.communicationReducer
+        communications: state.communicationReducer,
+        people: state.peopleReducer
     }
 };
 const mapDispatchToProps = (dispatch) => {

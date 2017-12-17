@@ -30,8 +30,8 @@ io.sockets.on('connection', socketioJwt.authorize({
     };
     clients.push(sock);
 
-    socket.emit('Introduction', socket.decoded_token);
-    console.log(socket.decoded_token.username + ' has connected to the chat.');
+    socket.emit('user:authenticated', socket.decoded_token);
+    socket.broadcast.emit('new-user:connected', socket.decoded_token.username);
 
     socket.on('users:get', function () {
         User.getAllUsers((err, users) => {
@@ -62,7 +62,7 @@ io.sockets.on('connection', socketioJwt.authorize({
     });
 
     socket.on('conversation:create', (recipient, message) => {
-        ChatController.newConversation(socket.decoded_token, recipient, message, (err, conversation) => {
+        ChatController.newConversation(socket.decoded_token, recipient, message, null, (err, conversation) => {
             if (err) return socket.emit("chatControllerError", err);
             let onlineUser = getSocketIdByUser(recipient._id, clients);
             if (onlineUser) {
@@ -80,6 +80,18 @@ io.sockets.on('connection', socketioJwt.authorize({
             socket.broadcast.to(conversationId).emit('messages:got', messages);
             // io.sockets.in(conversationId).emit('messages:got', messages);
             // socket.to(conversationId).emit('messages:got', messages);
+        })
+    });
+
+    socket.on("conversation:get", (conversationId) => {
+        ChatController.getConversationMessages(conversationId, (err, messages) => {
+            if (err) {
+                return socket.emit("chatControllerError", err);
+            }
+            else {
+                socket.emit('messages:got', messages);
+                socket.broadcast.to(conversationId).emit('messages:got', messages);
+            }
         })
     });
 
