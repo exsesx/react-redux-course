@@ -11,6 +11,7 @@ class Messages extends Component {
     sendMessage(conversation, message) {
         if (!message) return;
         Socket.emit("message:send", conversation, message);
+        Socket.emit("conversations:get");
         Socket.emit("messages:get", conversation);
     }
 
@@ -25,9 +26,7 @@ class Messages extends Component {
         if (this.props.newConversation) {
             return (
                 <div className="messages-wrapper">
-
-                        <NewConversation people={this.props.people}/>
-
+                    <NewConversation people={this.props.people} doCreateConversation={this.props.doCreateConversation}/>
                 </div>
             )
         }
@@ -39,8 +38,10 @@ class Messages extends Component {
                         recipient={recipient}
                         activeUser={this.props.userState}
                         messagesCount={messagesCount}
+                        removeConversation={this.props.removeConversation}
                         activeConversation={this.props.conversation}/>
-                    <MessagesHistory activeUser={this.props.userState} messages={this.props.communications.messages}/>
+                    <MessagesHistory activeUser={this.props.userState} messages={this.props.communications.messages}
+                                     activeConversation={this.props.conversation}/>
                     <MessagesControls recipient={recipient}
                                       activeConversation={this.props.conversation}
                                       sendMessage={this.sendMessage}

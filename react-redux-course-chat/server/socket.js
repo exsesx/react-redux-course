@@ -32,6 +32,7 @@ io.sockets.on('connection', socketioJwt.authorize({
 
     socket.emit('user:authenticated', socket.decoded_token);
     socket.broadcast.emit('new-user:connected', socket.decoded_token.username);
+    console.log(socket.decoded_token.username + ' has connected to the chat.');
 
     socket.on('users:get', function () {
         User.getAllUsers((err, users) => {
@@ -61,8 +62,8 @@ io.sockets.on('connection', socketioJwt.authorize({
         });
     });
 
-    socket.on('conversation:create', (recipient, message) => {
-        ChatController.newConversation(socket.decoded_token, recipient, message, null, (err, conversation) => {
+    socket.on('conversation:create', (recipient, message, conversationName = null) => {
+        ChatController.newConversation(socket.decoded_token, recipient, message, conversationName, (err, conversation) => {
             if (err) return socket.emit("chatControllerError", err);
             let onlineUser = getSocketIdByUser(recipient._id, clients);
             if (onlineUser) {
@@ -95,13 +96,6 @@ io.sockets.on('connection', socketioJwt.authorize({
         })
     });
 
-    socket.on('conversation:delete', (conversationId) => {
-        ChatController.deleteConversation(conversationId, socket.decoded_token, (err, conversation) => {
-            if (err) throw err;
-            socket.emit('conversation:deleted', conversation);
-        })
-    });
-
     socket.on('user:conversation-with:get', userId => {
         ChatController.getConversationWithUser(userId, socket.decoded_token, (err, conversations) => {
             if (err) return socket.emit('user:conversation-with:got', err, null);
@@ -124,6 +118,15 @@ io.sockets.on('connection', socketioJwt.authorize({
     socket.on('conversation:leave', (conversation) => {
         socket.leave(conversation._id);
         console.log('left ' + conversation._id);
+    });
+
+    socket.on("conversation:remove", (conversation) => {
+        ChatController.deleteConversation(conversation, socket.decoded_token, (err, success) => {
+            if (err) {
+                return socket.emit("conversation:removed", err);
+            }
+            return socket.emit("conversation:removed", success);
+        })
     });
 
     socket.on('message:send', (conversation, composedMessage) => {

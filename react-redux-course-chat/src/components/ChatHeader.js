@@ -21,8 +21,8 @@ export class Menu extends Component {
                     }
                     targetOrigin={{ horizontal: 'right', vertical: 'top' }}
                     anchorOrigin={{ horizontal: 'right', vertical: 'top' }}>
-                    <MenuItem primaryText="Refresh"/>
-                    <MenuItem primaryText="Help"/>
+                    <MenuItem disabled primaryText="Refresh"/>
+                    <MenuItem disabled primaryText="Help"/>
                     <MenuItem primaryText="Sign out" onClick={() => dispatch(userLogout())}/>
                 </IconMenu>
             </div>
@@ -43,7 +43,7 @@ export default class Header extends Component {
     render() {
         return (
             <AppBar
-                title="Chat"
+                title="G - CHAT"
                 iconElementLeft={<IconButton onClick={this.handleToggle}><MobileMenu/></IconButton>}>
                 <Menu/>
                 <Drawer

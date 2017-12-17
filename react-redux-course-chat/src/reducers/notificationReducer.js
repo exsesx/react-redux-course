@@ -2,7 +2,7 @@ const INITIAL_STATE = { message: null };
 
 const notificationReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case "CONVERSATION_CREATING":
+        case "SEND_NOTIFICATION":
             return { ...state, message: action.message };
         case "STOP_NOTIFICATION":
             return { ...state, message: ""}

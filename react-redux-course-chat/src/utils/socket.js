@@ -1,20 +1,19 @@
 import io from 'socket.io-client';
 import store from 'store';
 import {
-    userLoggedIn,
-    userLogout,
-    connectedNewUser,
-    initUsers,
     getConversations,
+    initUsers,
+    receiveMessage,
+    sendNotification,
     setActiveConversation,
     setMessages,
-    receiveMessage,
-    creatingConversationNotify
+    userLoggedIn,
+    userLogout
 } from 'actions';
 
 const { dispatch } = store;
 
-const socketUrl = "http://192.168.0.105:3000";
+const socketUrl = "http://192.168.0.101:3000";
 export default class Socket {
     constructor() {
         this.socket = null;
@@ -65,7 +64,6 @@ export default class Socket {
                         } else if (conversation) {
                             dispatch(setActiveConversation(conversation));
                             socket.emit("messages:get", conversation._id);
-                            socket.emit("conversation:enter", conversation);
                         }
                     });
 
@@ -78,7 +76,7 @@ export default class Socket {
                     });
 
                     socket.on("conversation:creation:notify", function (message) {
-                        dispatch(creatingConversationNotify(message));
+                        dispatch(sendNotification(message));
                     });
 
                     socket.on("conversations:got", function (conversations) {
@@ -86,6 +84,11 @@ export default class Socket {
                             dispatch(getConversations(conversations))
                         }
                         else console.log("You have not conversations yet");
+                    });
+
+                    socket.on("conversation:removed", function (removed) {
+                        dispatch(sendNotification(removed.message));
+                        return socket.emit("conversations:get");
                     });
 
                     socket.on("messages:got", function (messages) {
@@ -96,7 +99,6 @@ export default class Socket {
                     });
 
                     socket.on("message:receive", message => {
-                        console.log(message);
                         if (message) {
                             dispatch(receiveMessage(message))
                         }

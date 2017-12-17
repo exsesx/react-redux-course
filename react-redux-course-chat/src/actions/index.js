@@ -21,9 +21,9 @@ export const userLogout = () => {
     }
 };
 
-export const creatingConversationNotify = (message) => {
+export const sendNotification = (message) => {
     return {
-        type: "CONVERSATION_CREATING",
+        type: "SEND_NOTIFICATION",
         message
     }
 };
@@ -45,6 +45,7 @@ export const initUsers = (users) => {
 // Messaging actions
 //= ===============================
 export const getConversations = ({ conversations }) => {
+    console.log(conversations);
     return {
         type: "GET_CONVERSATIONS",
         conversations

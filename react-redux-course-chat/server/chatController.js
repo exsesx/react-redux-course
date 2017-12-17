@@ -88,9 +88,18 @@ exports.newConversation = function (currentUser, recipient, composedMessage, con
         return callback({ message: 'Please enter a message.' });
     }
 
+    let participants = [currentUser._id];
+    if (recipient.length > 1) {
+        recipient.forEach(r => {
+            participants.push(r);
+        });
+    } else {
+        participants.push(recipient);
+    }
+
     const conversation = new Conversation({
         name: conversationName,
-        participants: [currentUser._id, recipient]
+        participants: participants
     });
 
     conversation.save(function (err, newConversation) {
@@ -132,17 +141,18 @@ exports.sendReply = function (conversationId, composedMessage, user, callback) {
 };
 
 // DELETE Route to Delete Conversation
-exports.deleteConversation = function (conversationId, user, callback) {
+exports.deleteConversation = function (conversation, user, callback) {
     Conversation.findOneAndRemove({
         $and: [
-            { '_id': conversationId }, { 'participants': user._id }
+            { '_id': conversation._id }, { 'participants': user._id }
         ]
     }, function (err) {
         if (err) {
-            callback(err);
+            return callback(err);
         }
 
-        callback(null, { message: 'Conversation removed!' });
+        const message = conversation.name ? `Conversation "${conversation.name}" removed.` : "Conversation removed.";
+        return callback(null, { message: message });
     });
 };
 

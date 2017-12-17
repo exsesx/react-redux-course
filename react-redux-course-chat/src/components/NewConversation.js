@@ -7,11 +7,15 @@ import RaisedButton from 'material-ui/RaisedButton';
 export default class NewConversation extends Component {
     state = {
         values: [],
+        conversationName: ""
     };
 
     handleChange = (event, index, values) => {
-        console.log(values);
         this.setState({ values });
+    };
+
+    handleConversationNameChange = (event) => {
+        this.setState({ conversationName: event.target.value });
     };
 
     menuItems(values) {
@@ -19,8 +23,8 @@ export default class NewConversation extends Component {
             <MenuItem
                 key={u._id}
                 insetChildren={true}
-                checked={values && values.indexOf(u) > -1}
-                value={u}
+                checked={values && values.indexOf(u._id) > -1}
+                value={u._id}
                 primaryText={u.username}
             />
         ));
@@ -31,7 +35,8 @@ export default class NewConversation extends Component {
         return (
             <div className="create-new-conversation">
                 <div className="conversation-inputs">
-                    <TextField hintText="Enter a name for the new conversation..."/>
+                    <TextField hintText="Enter a name for the new conversation..."
+                               onChange={this.handleConversationNameChange}/>
                     <SelectField
                         multiple={true}
                         hintText="Select recipients"
@@ -41,7 +46,8 @@ export default class NewConversation extends Component {
                     </SelectField>
                 </div>
                 <div className="conversation-submit">
-                    <RaisedButton label="Create conversation" secondary={true}/>
+                    <RaisedButton onClick={e => this.props.doCreateConversation(e, this.state.conversationName, values)}
+                                  label="Create conversation" secondary={true}/>
                 </div>
             </div>
         );

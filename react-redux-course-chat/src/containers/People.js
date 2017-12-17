@@ -4,26 +4,26 @@ import Avatar from 'material-ui/Avatar';
 import PeopleSearch from 'components/PeopleSearch';
 import ContactsSearch from 'components/ContactsSearch';
 import ContactsList from 'components/ContactsList';
-import { Tabs, Tab } from 'material-ui/Tabs';
+import { Tab, Tabs } from 'material-ui/Tabs';
 import List from 'material-ui/List/List';
 import ListItem from 'material-ui/List/ListItem';
 import CircularProgress from 'material-ui/CircularProgress'
 import Socket from 'utils/socket';
 
 import {
-    red500 as red,
+    amber500 as amber,
+    blue500 as blue,
+    cyan500 as cyan,
+    deepPurple500 as deepPurple,
+    green500 as green,
+    indigo500 as indigo,
+    lightBlue500 as lightBlue,
+    orange500 as orange,
     pink500 as pink,
     purple500 as purple,
-    deepPurple500 as deepPurple,
-    indigo500 as indigo,
-    blue500 as blue,
-    lightBlue500 as lightBlue,
-    cyan500 as cyan,
+    red500 as red,
     teal500 as teal,
-    green500 as green,
-    yellow500 as yellow,
-    amber500 as amber,
-    orange500 as orange
+    yellow500 as yellow
 } from 'material-ui/styles/colors';
 
 const colors = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, yellow, amber, orange];
@@ -32,21 +32,26 @@ class People extends Component {
     constructor(props) {
         super(props);
 
+        this.handleTabChange = this.handleTabChange.bind(this);
         this.handleContactsSearch = this.handleContactsSearch.bind(this);
         this.peopleSearchItemSelected = this.peopleSearchItemSelected.bind(this);
         this.state = {
-            contactsList: []
+            contactsList: [],
+            noConversations: true,
+            tab: "conversations"
         }
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({ contactsList: nextProps.conversations });
+        if (nextProps.conversations) {
+            this.setState({ noConversations: false, contactsList: nextProps.conversations });
+        } else {
+            this.setState({ noConversations: true })
+        }
     }
 
     componentDidMount() {
         Socket.emit('users:get:not-current');
-        Socket.emit("conversations:get");
-
     }
 
     peopleSearchItemSelected(chosenRequest, index) {
@@ -69,23 +74,38 @@ class People extends Component {
         // console.log(updatedList)
     }
 
+    handleTabChange(value) {
+        this.setState({
+            tab: value,
+        });
+    }
+
     render() {
         return (
             <div className="dialogs-wrapper">
-                <Tabs>
-                    <Tab label="My Contacts">
+                <Tabs value={this.state.tab}
+                      onChange={this.handleTabChange}>
+                    <Tab label="My Contacts" value="conversations">
                         <ContactsSearch handleContactsSearch={this.handleContactsSearch}/>
-                        {this.state.contactsList.length > 0 ?
-                            (<ContactsList conversations={this.state.contactsList}
-                                           selectParticipant={this.props.selectParticipant}
-                                           createConversation={this.props.createConversation}
-                                           activeUser={this.props.userState}/>) :
-                            <div className="dialogs-loading-wrapper">
-                                <CircularProgress size={60} thickness={7}/>
-                            </div>
+                        {
+                            this.state.contactsList.length > 0 ?
+                                (<ContactsList conversations={this.state.contactsList}
+                                               selectParticipant={this.props.selectParticipant}
+                                               createConversation={this.props.createConversation}
+                                               activeUser={this.props.userState}/>)
+                                : !this.state.noConversations ?
+                                <ListItem className="first-contact"
+                                          hoverColor={orange}
+                                          onClick={() => this.setState({ tab: "add-contacts" })}>
+                                    You doesn't have any conversations yet. Add contacts?
+                                </ListItem>
+                                :
+                                <div className="dialogs-loading-wrapper">
+                                    <CircularProgress size={60} thickness={7}/>
+                                </div>
                         }
                     </Tab>
-                    <Tab label="Add Contacts">
+                    <Tab label="Add Contacts" value="add-contacts">
                         <PeopleSearch dialogs={this.props.people} onSelectedItem={this.peopleSearchItemSelected}/>
 
                         <List className="dialogs-list">

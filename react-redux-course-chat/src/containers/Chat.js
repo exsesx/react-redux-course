@@ -6,7 +6,7 @@ import Socket from "utils/socket";
 import { connect } from "react-redux";
 
 import Snackbar from 'material-ui/Snackbar';
-import { setActiveConversation, stopNotification } from 'actions';
+import { getConversations, setActiveConversation, stopNotification } from 'actions';
 
 class Chat extends Component {
     constructor(props) {
@@ -28,26 +28,34 @@ class Chat extends Component {
     }
 
     selectParticipant = (e, selected, color, type) => {
-        this.setState({createConversation: false});
+        this.setState({ createConversation: false });
         selected.avatarColor = color;
         selected.type = type;
         Socket.emit(type === "user"
             ? "user:conversation-with:get"
             : "conversation:get", selected._id);
         this.leaveConversation(this.props.activeConversation);
+        this.props.setActiveConversation(selected);
+        Socket.emit("conversation:enter", selected);
         if (type === "user") {
-            this.setState({selectedRecipient: selected, selectedConversation: null});
+            this.setState({ selectedRecipient: selected, selectedConversation: null });
         } else {
-            this.setState({selectedConversation: selected, selectedRecipient: null});
+            this.setState({ selectedConversation: selected, selectedRecipient: null });
         }
     };
 
-    createConversation = (e) => {
-        this.setState({createConversation: true})
+    createConversation = () => {
+        this.setState({ createConversation: true })
+    };
+
+    removeConversation = (event, conversation) => {
+        Socket.emit("conversation:remove", conversation);
+        this.props.getConversations({ conversations: null });
+        this.props.setActiveConversation(null);
+        this.setState({ selectedRecipient: null, selectedConversation: null });
     };
 
     componentWillReceiveProps(nextProps) {
-        console.log("NOTIFY", nextProps.notifications);
         if (nextProps.notifications.message) {
             this.setState({
                 open: true,
@@ -63,14 +71,21 @@ class Chat extends Component {
         });
     };
 
+    doCreateConversation = (e, conversationName, recipients) => {
+        Socket.emit("conversation:create", recipients, "Created conversation.", conversationName);
+    };
+
     render() {
         return (
             <div className="chat-container">
                 <ChatHeader/>
-                <People selectParticipant={this.selectParticipant} createConversation={this.createConversation} {...this.props}/>
+                <People selectParticipant={this.selectParticipant}
+                        createConversation={this.createConversation} {...this.props}/>
                 <Messages recipient={this.state.selectedRecipient}
                           conversation={this.state.selectedConversation}
                           newConversation={this.state.createConversation}
+                          doCreateConversation={this.doCreateConversation}
+                          removeConversation={this.removeConversation}
                           {...this.props}/>
                 <Snackbar
                     open={this.state.open}
@@ -98,6 +113,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         setActiveConversation: (conversation) => {
             dispatch(setActiveConversation(conversation))
+        },
+        getConversations: (conversations) => {
+            dispatch(getConversations(conversations))
         }
     };
 };
