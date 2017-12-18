@@ -48,7 +48,7 @@ exports.getConversationWithUser = function (userId, currentUser, callback) {
         let userConversation = {};
 
         conversations.forEach(c => {
-            if (c.participants.indexOf(currentUser._id) !== -1
+            if (c.participants.length === 2 && c.participants.indexOf(currentUser._id) !== -1
                 && c.participants.indexOf(userId) !== -1) {
                 userConversation = c;
             }
