@@ -31,12 +31,16 @@ class Chat extends Component {
         this.setState({ createConversation: false });
         selected.avatarColor = color;
         selected.type = type;
+
         Socket.emit(type === "user"
             ? "user:conversation-with:get"
             : "conversation:get", selected._id);
+
         this.leaveConversation(this.props.activeConversation);
         this.props.setActiveConversation(selected);
+
         Socket.emit("conversation:enter", selected);
+
         if (type === "user") {
             this.setState({ selectedRecipient: selected, selectedConversation: null });
         } else {
@@ -71,6 +75,13 @@ class Chat extends Component {
         });
     };
 
+    handleActionClick = (event) => {
+        this.props.stopNotification();
+        this.setState({
+            open: false,
+        });
+    };
+
     doCreateConversation = (e, conversationName, recipients) => {
         Socket.emit("conversation:create", recipients, "Created conversation.", conversationName);
     };
@@ -90,7 +101,8 @@ class Chat extends Component {
                 <Snackbar
                     open={this.state.open}
                     message={this.state.message}
-                    action="undo"
+                    action="Close"
+                    onActionTouchTap={this.handleActionClick}
                     autoHideDuration={3000}
                     onRequestClose={this.handleRequestClose}
                 />

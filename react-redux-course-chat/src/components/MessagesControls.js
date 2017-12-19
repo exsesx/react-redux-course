@@ -8,10 +8,11 @@ export default class MessagesControls extends Component {
 
         this.changeMessage = this.changeMessage.bind(this);
         this.handleSend = this.handleSend.bind(this);
-        this.handleKeypress = this.handleKeypress.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
 
         this.state = {
-            message: ""
+            message: "",
+            isUpdating: false
         };
     }
 
@@ -28,21 +29,52 @@ export default class MessagesControls extends Component {
         this.setState({ message: "" })
     }
 
-    handleKeypress(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            this.handleSend();
+    componentWillReceiveProps(nextProps) {
+        const currentMessage = nextProps.currentMessage;
+        if (currentMessage && Object.keys(currentMessage).length !== 0 && currentMessage.constructor === Object) {
+            this.setState({ message: nextProps.currentMessage.body, isUpdating: true })
         }
     }
+
+    handleKeyDown(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (this.state.isUpdating) {
+                if (this.state.message.trim() === this.props.currentMessage.body) {
+                    this.setState({ isUpdating: false, message: "" });
+                    return this.props.updateCurrentMessage(null);
+                }
+                this.props.updateCurrentMessage(true, this.props.currentMessage, this.state.message.trim());
+                return this.setState({ message: "" });
+            }
+            this.handleSend();
+        }
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            this.props.selectCurrentMessage();
+        }
+    }
+
+    handleKeyUp = (e) => {
+        if (e.target.value === "") {
+            if (this.state.isUpdating) {
+                this.props.setCurrentMessage({});
+            }
+            this.setState({ isUpdating: false });
+        }
+    };
 
     render() {
         return (
             <div className="messages-controls">
                 <textarea className="send-message-text" placeholder="Write a message..." value={this.state.message}
-                          onChange={this.changeMessage} onKeyPress={this.handleKeypress}/>
+                          onChange={this.changeMessage} onKeyDown={this.handleKeyDown} onKeyUp={this.handleKeyUp}/>
                 <div className="send-button-wrapper">
                     <FlatButton
-                        label={this.props.activeConversation ? "Send" : "Start"}
+                        label={
+                            this.props.activeConversation
+                                ? this.state.isUpdating ? "Update" : "Send"
+                                : "Start"}
                         labelPosition="before"
                         primary={true}
                         onClick={this.handleSend}

@@ -13,7 +13,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = "mySecretKey";
 const config = require('../webpack.config.js');
 
-const port = 3000;
+const port = 80;
 const app = express();
 const server = http.Server(app);
 const compiler = webpack(config);
@@ -60,7 +60,7 @@ app.post('/login', function (req, res) {
         User.comparePassword(password, user.password, function (err, isMatch) {
             if (err) return res.status(400).send(err);
             if (isMatch) {
-                let token = jwt.sign(user, jwtSecret, { expiresIn: '1h' });
+                let token = jwt.sign(user, jwtSecret, { expiresIn: '2h' });
                 return res.json({ token });
             } else {
                 return res.status(400).send("Invalid password")

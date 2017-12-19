@@ -40,6 +40,30 @@ exports.getConversations = function (user, callback) {
         });
 };
 
+exports.getCurrentMessage = function (conversationId, userId, callback) {
+    Message.findOne({ 'conversationId': conversationId })
+        .select("-conversationId -__v")
+        .sort('-createdAt')
+        .populate({
+            path: "author",
+            select: "-password",
+            match: {
+                _id: userId
+            }
+        })
+        .exec(function (err, message) {
+            if (err) {
+                return callback(err);
+            }
+
+            if (!message.author) {
+                return callback({ message: "Didn't find your last message." })
+            }
+
+            return callback(null, message);
+        });
+};
+
 exports.getConversationWithUser = function (userId, currentUser, callback) {
     Conversation.find().exec((err, conversations) => {
         if (err) {
@@ -140,7 +164,6 @@ exports.sendReply = function (conversationId, composedMessage, user, callback) {
     });
 };
 
-// DELETE Route to Delete Conversation
 exports.deleteConversation = function (conversation, user, callback) {
     Conversation.findOneAndRemove({
         $and: [
@@ -156,25 +179,43 @@ exports.deleteConversation = function (conversation, user, callback) {
     });
 };
 
-// PUT Route to Update Message
 exports.updateMessage = function (messageId, newMessage, user, callback) {
-    Conversation.find({
-        $and: [
-            { '_id': messageId }, { 'author': user._id }
-        ]
-    }, function (err, message) {
-        if (err) {
-            callback(err);
-        }
+    // Message.find({
+    //     $and: [
+    //         { '_id': messageId }, { 'author': user._id }
+    //     ]
+    // }, function (err, message) {
+    //
+    //
+    //     console.log("MESSAGE", message);
+    //
+    //     message.body = newMessage;
+    //     // message.edited = true;
+    //
+    //     message.save(function (err, updatedMessage) {
+    //         if (err) {
+    //             return callback(err);
+    //         }
+    //
+    //
+    //     });
+    // });
+    // Message.update({ _id: messageId, author: user._id }, { body: newMessage },
+    //     (err, numberAffected, rawResponse) => {
+    //         if (err) {
+    //             return callback(err);
+    //         }
+    //         return callback(null, { message: 'Message updated!' });
+    // })
 
+    Message.findOne({ _id: messageId, author: user._id }, function (err, message) {
         message.body = newMessage;
-
-        message.save(function (err, updatedMessage) {
+        message.save(function (err, newMessage) {
             if (err) {
-                callback(err);
+                return callback(err);
             }
 
-            callback(null, { message: 'Message updated!' });
+            return callback(null, {message: "Message updated!", conversationId: message.conversationId});
         });
-    });
+    })
 };

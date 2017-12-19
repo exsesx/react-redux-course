@@ -6,18 +6,30 @@ import NewConversation from 'components/NewConversation';
 import { connect } from "react-redux";
 
 import Socket from 'utils/socket';
+import { getConversations, setCurrentMessage } from "actions";
 
 class Messages extends Component {
-    sendMessage(conversation, message) {
+    sendMessage = (conversation, message) => {
         if (!message) return;
         Socket.emit("message:send", conversation, message);
         Socket.emit("conversations:get");
         Socket.emit("messages:get", conversation);
-    }
+    };
 
-    startConversation(user, message) {
+    startConversation = (user, message) => {
         Socket.emit("conversation:create", user, message);
-    }
+    };
+
+    selectCurrentMessage = () => {
+        Socket.emit('messages:get-current', this.props.conversation);
+    };
+
+    updateCurrentMessage = (success, message, newMessage) => {
+        if(success) {
+            Socket.emit("message:update", message._id, newMessage);
+        }
+        this.props.setCurrentMessage({});
+    };
 
     render() {
         const messagesCount = this.props.communications.messages ? this.props.communications.messages.length : null;
@@ -41,11 +53,16 @@ class Messages extends Component {
                         removeConversation={this.props.removeConversation}
                         activeConversation={this.props.conversation}/>
                     <MessagesHistory activeUser={this.props.userState} messages={this.props.communications.messages}
-                                     activeConversation={this.props.conversation}/>
+                                     activeConversation={this.props.conversation}
+                                     currentMessage={this.props.communications.message}/>
                     <MessagesControls recipient={recipient}
                                       activeConversation={this.props.conversation}
                                       sendMessage={this.sendMessage}
-                                      startConversation={this.startConversation}/>
+                                      startConversation={this.startConversation}
+                                      selectCurrentMessage={this.selectCurrentMessage}
+                                      setCurrentMessage={this.props.setCurrentMessage}
+                                      currentMessage={this.props.communications.message}
+                                      updateCurrentMessage={this.updateCurrentMessage}/>
                 </div>
             )
         } else {
@@ -53,7 +70,6 @@ class Messages extends Component {
                 <div className="no-recipient">Please select a chat to start messaging</div>
             )
         }
-
     }
 }
 
@@ -65,7 +81,9 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch) => {
     return {
-        dispatch
+        setCurrentMessage: (message) => {
+            dispatch(setCurrentMessage(message))
+        }
     };
 };
 

@@ -8,12 +8,13 @@ import {
     setActiveConversation,
     setMessages,
     userLoggedIn,
-    userLogout
+    userLogout,
+    setCurrentMessage
 } from 'actions';
 
 const { dispatch } = store;
 
-const socketUrl = "http://192.168.0.101:3000";
+const socketUrl = "http://127.0.0.1:80";
 export default class Socket {
     constructor() {
         this.socket = null;
@@ -25,7 +26,7 @@ export default class Socket {
             this.socket.disconnect();
         }
 
-        this.socket = io.connect(socketUrl);
+        this.socket = io.connect(socketUrl, { 'sync disconnect on unload': true });
 
         const socket = this.socket;
 
@@ -92,16 +93,22 @@ export default class Socket {
                     });
 
                     socket.on("messages:got", function (messages) {
-                        console.log("received messages:", messages);
                         if (messages) {
                             dispatch(setMessages(messages));
                         }
                     });
 
-                    socket.on("message:receive", message => {
-                        if (message) {
-                            dispatch(receiveMessage(message))
-                        }
+                    socket.on("message:updated", function(result) {
+                       dispatch(sendNotification(result.message));
+                       socket.emit("messages:get", result.conversationId);
+                    });
+
+                    socket.on("messages:got-current", function (message) {
+                        dispatch(setCurrentMessage(message));
+                    });
+
+                    socket.on("message:receive", (message) => {
+                        dispatch(receiveMessage(message))
                     });
 
                     socket.on("chatControllerError", function (err) {

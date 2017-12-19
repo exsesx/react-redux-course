@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 
 export default class MessagesHistory extends Component {
-
-
     componentDidUpdate() {
         if (this.messageHistoryWrapper) {
             this.messageHistoryWrapper.parentNode.scrollTop = this.messageHistoryWrapper.scrollHeight;
@@ -12,6 +10,10 @@ export default class MessagesHistory extends Component {
     checkSender(message) {
         return (message.author._id === this.props.activeUser._id)
             || (message.author === this.props.activeUser._id);
+    }
+
+    checkUpdating(message) {
+        return (message._id === this.props.currentMessage._id);
     }
 
     render() {
@@ -25,7 +27,8 @@ export default class MessagesHistory extends Component {
                                 let date = new Date(m.createdAt).toLocaleTimeString("en-US");
                                 return (
                                     <div key={m._id}
-                                         className={"message-wrapper " + (this.checkSender(m) ? 'justify-right' : 'justify-left')}>
+                                         className={"message-wrapper " + (this.checkSender(m) ? 'justify-right' : 'justify-left')
+                                         + (this.checkUpdating(m) ? " selected" : "")}>
                                         <div
                                             className={"chat-bubble " + (this.checkSender(m) ? 'my-message' : 'recipient-message')}>
                                             {m.body}</div>

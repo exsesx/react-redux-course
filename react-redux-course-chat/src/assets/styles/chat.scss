@@ -47,7 +47,7 @@
   .messages-wrapper {
     float: right;
     display: flex;
-    height: 100vh;
+    height: calc(100vh - 64px);
     width: 69%;
     flex-direction: column;
     justify-content: space-between;
@@ -125,7 +125,7 @@
     .messages-history {
       display: flex;
       flex-direction: column-reverse;
-      padding: 25px 40px;
+      padding: 25px 0;
       height: 100%;
       border-bottom: 1px solid #e0e0e0;
 
@@ -137,13 +137,27 @@
         display: flex;
         position: relative;
         flex-direction: column;
+        padding: 0 40px;
 
         &.justify-left {
           align-items: flex-start;
+
+          .message-info {
+            text-align: left;
+          }
         }
 
         &.justify-right {
           align-items: flex-end;
+
+          .message-info {
+            text-align: right;
+          }
+        }
+
+        &.selected {
+          background: #E8E8E8;
+          border-radius: 10px;
         }
 
         .chat-bubble {
@@ -211,9 +225,28 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: calc(100vh - 64px);
     width: 69%;
     background: rgba(0, 0, 0, .025);
     color: black;
+  }
+}
+
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #eee;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+
+  &:active {
+    background: #dedede;
   }
 }

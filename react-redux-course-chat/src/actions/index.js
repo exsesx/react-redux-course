@@ -34,6 +34,13 @@ export const stopNotification = () => {
     }
 };
 
+export const setCurrentMessage = (message) => {
+    return {
+        type: "SET_CURRENT_MESSAGE",
+        message
+    }
+};
+
 export const initUsers = (users) => {
     return {
         type: "INIT_USERS",
@@ -45,7 +52,6 @@ export const initUsers = (users) => {
 // Messaging actions
 //= ===============================
 export const getConversations = ({ conversations }) => {
-    console.log(conversations);
     return {
         type: "GET_CONVERSATIONS",
         conversations
@@ -79,21 +85,4 @@ export function setMessages(messages) {
         type: "SET_MESSAGES",
         messages
     }
-}
-
-export function fetchRecipients() {
-    const url = '/chat/recipients';
-    return dispatch => getData(FETCH_RECIPIENTS, CHAT_ERROR, true, url, dispatch);
-}
-
-export function sendReply(replyTo, { composedMessage }) {
-    const data = { composedMessage };
-    const url = `/chat/${replyTo}`;
-    return (dispatch) => {
-        postData(SEND_REPLY, CHAT_ERROR, true, url, dispatch, data);
-
-        // Clear form after message is sent
-        dispatch(reset('replyMessage'));
-        socket.emit('new message', replyTo);
-    };
 }

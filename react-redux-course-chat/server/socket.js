@@ -78,9 +78,7 @@ io.sockets.on('connection', socketioJwt.authorize({
         ChatController.getConversationMessages(conversationId, (err, messages) => {
             if (err) throw err;
             socket.emit('messages:got', messages);
-            socket.broadcast.to(conversationId).emit('messages:got', messages);
-            // io.sockets.in(conversationId).emit('messages:got', messages);
-            // socket.to(conversationId).emit('messages:got', messages);
+            socket.broadcast.to(conversationId).emit('messages:got', messages)
         })
     });
 
@@ -129,6 +127,24 @@ io.sockets.on('connection', socketioJwt.authorize({
         })
     });
 
+    socket.on("message:update", (messageId, newMessage) => {
+        ChatController.updateMessage(messageId, newMessage, socket.decoded_token, (err, message) => {
+            if (err) {
+                return socket.emit("chatControllerError", err);
+            }
+            return socket.emit("message:updated", message);
+        })
+    });
+
+    socket.on("messages:get-current", (conversationId) => {
+        ChatController.getCurrentMessage(conversationId, socket.decoded_token._id, (err, message) => {
+            if (err) {
+                return socket.emit("chatControllerError", err);
+            }
+            return socket.emit("messages:got-current", message);
+        })
+    });
+
     socket.on('message:send', (conversation, composedMessage) => {
         let message = new Message({
             conversationId: conversation._id,
@@ -140,7 +156,12 @@ io.sockets.on('connection', socketioJwt.authorize({
             if (err) {
                 return socket.to(conversation._id).emit("chatControllerError", err);
             }
-            return socket.to(conversation._id).emit("message:receive", newMessage);
+            let result = Object.assign({}, newMessage);
+            result.author = {
+                _id: result.author,
+                name: socket.decoded_token.username
+            };
+            return socket.to(conversation._id).emit("message:receive", result);
         });
     });
 
