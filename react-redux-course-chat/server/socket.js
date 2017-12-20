@@ -156,7 +156,7 @@ io.sockets.on('connection', socketioJwt.authorize({
             if (err) {
                 return socket.to(conversation._id).emit("chatControllerError", err);
             }
-            let result = Object.assign({}, newMessage);
+            let result = Object.assign({}, newMessage.toJSON());
             result.author = {
                 _id: result.author,
                 name: socket.decoded_token.username

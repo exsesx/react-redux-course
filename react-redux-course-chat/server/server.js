@@ -76,11 +76,11 @@ app.post('/register', function (req, res) {
     if (!password) return res.status(400).send("Password is required");
 
     let newUser = new User({
-        username,
+        username: username.trim(),
         password
     });
 
-    User.createUser(newUser, function (error, user) {
+    User.createUser(newUser, function (error) {
         error
             ? res.status(400).send('User is already exists')
             : res.status(200).send('Successfuly registered')

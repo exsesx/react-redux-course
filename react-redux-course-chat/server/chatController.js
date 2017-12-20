@@ -137,7 +137,7 @@ exports.newConversation = function (currentUser, recipient, composedMessage, con
             author: currentUser
         });
 
-        message.save(function (err, newMessage) {
+        message.save(function (err) {
             if (err) {
                 return callback(err);
             }
@@ -155,7 +155,7 @@ exports.sendReply = function (conversationId, composedMessage, user, callback) {
         author: user._id
     });
 
-    reply.save(function (err, sentReply) {
+    reply.save(function (err) {
         if (err) {
             callback(err);
         }
@@ -180,37 +180,9 @@ exports.deleteConversation = function (conversation, user, callback) {
 };
 
 exports.updateMessage = function (messageId, newMessage, user, callback) {
-    // Message.find({
-    //     $and: [
-    //         { '_id': messageId }, { 'author': user._id }
-    //     ]
-    // }, function (err, message) {
-    //
-    //
-    //     console.log("MESSAGE", message);
-    //
-    //     message.body = newMessage;
-    //     // message.edited = true;
-    //
-    //     message.save(function (err, updatedMessage) {
-    //         if (err) {
-    //             return callback(err);
-    //         }
-    //
-    //
-    //     });
-    // });
-    // Message.update({ _id: messageId, author: user._id }, { body: newMessage },
-    //     (err, numberAffected, rawResponse) => {
-    //         if (err) {
-    //             return callback(err);
-    //         }
-    //         return callback(null, { message: 'Message updated!' });
-    // })
-
     Message.findOne({ _id: messageId, author: user._id }, function (err, message) {
         message.body = newMessage;
-        message.save(function (err, newMessage) {
+        message.save(function (err) {
             if (err) {
                 return callback(err);
             }
