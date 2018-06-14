@@ -58,7 +58,7 @@ class People extends Component {
         this.props.selectParticipant(null, chosenRequest, colors[index], "user");
     }
 
-    handleContactsSearch(e) {
+    handleContactsSearch() {
         //todo: make this works
 
         // let updatedList = this.state.contactsList;

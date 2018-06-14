@@ -13,7 +13,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = "mySecretKey";
 const config = require('../webpack.config.js');
 
-const port = 80;
+const port = 8080;
 const app = express();
 const server = http.Server(app);
 const compiler = webpack(config);

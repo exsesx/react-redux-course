@@ -6,7 +6,7 @@ import NewConversation from 'components/NewConversation';
 import { connect } from "react-redux";
 
 import Socket from 'utils/socket';
-import { getConversations, setCurrentMessage } from "actions";
+import { setCurrentMessage } from "actions";
 
 class Messages extends Component {
     sendMessage = (conversation, message) => {

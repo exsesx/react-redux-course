@@ -14,7 +14,7 @@ import {
 
 const { dispatch } = store;
 
-const socketUrl = "http://127.0.0.1:80";
+const socketUrl = "http://127.0.0.1:8080";
 export default class Socket {
     constructor() {
         this.socket = null;

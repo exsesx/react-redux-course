@@ -159,8 +159,9 @@ io.sockets.on('connection', socketioJwt.authorize({
             let result = Object.assign({}, newMessage.toJSON());
             result.author = {
                 _id: result.author,
-                name: socket.decoded_token.username
+                username: socket.decoded_token.username
             };
+            // todo: correct property fix
             return socket.to(conversation._id).emit("message:receive", result);
         });
     });

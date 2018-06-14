@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Chat from 'containers/Chat';
-import Messages from 'containers/Messages';
 import LinearProgress from 'material-ui/LinearProgress';
 import Authentication from 'containers/Authentication';
 import Registration from 'containers/Registration';

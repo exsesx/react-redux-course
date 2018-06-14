@@ -75,7 +75,7 @@ class Chat extends Component {
         });
     };
 
-    handleActionClick = (event) => {
+    handleActionClick = () => {
         this.props.stopNotification();
         this.setState({
             open: false,
